@@ -1,4 +1,5 @@
 .build/
+.vscode/
 
 subprojects/packagecache/
 subprojects/glfw*/
