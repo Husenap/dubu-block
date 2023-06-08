@@ -3,3 +3,5 @@
 
 subprojects/packagecache/
 subprojects/glfw*/
+subprojects/fmt*/
+subprojects/imgui*/
