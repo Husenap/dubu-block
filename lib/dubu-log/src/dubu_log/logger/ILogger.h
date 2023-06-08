@@ -3,11 +3,9 @@
 #include <array>
 #include <cstdint>
 #include <filesystem>
+#include <format>
 #include <string>
 #include <string_view>
-
-#include <fmt/format.h>
-
 
 namespace dubu::log {
 
@@ -57,7 +55,7 @@ public:
       functionName = functionName.substr(pos + 1);
     }
 
-    const std::string text = fmt::format(formatString, std::forward<Args>(args)...);
+    const auto text = std::vformat(formatString, std::make_format_args(args...));
 
     InternalLog(level, fileName, line, functionName, text);
 

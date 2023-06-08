@@ -2,9 +2,8 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-#include <glad/gl.h>
-
 #include <dubu_log/dubu_log.h>
+#include <glad/gl.h>
 
 namespace dubu::opengl_app {
 

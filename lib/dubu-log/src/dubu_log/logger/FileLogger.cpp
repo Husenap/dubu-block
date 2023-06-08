@@ -11,7 +11,7 @@ void FileLogger::InternalLog(LogLevel           level,
                              uint32_t           line,
                              const std::string& function,
                              const std::string& text) {
-  mStream << fmt::format("[{}]: {}:{}:{}: {}", LogLevelString(level), file, line, function, text)
+  mStream << std::format("[{}]: {}:{}:{}: {}", LogLevelString(level), file, line, function, text)
           << std::endl;
 }
 
