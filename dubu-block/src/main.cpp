@@ -14,6 +14,7 @@
 #include <imgui.h>
 #include <stb/stb_image.h>
 
+#include "gl/gif.hpp"
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
 #include "gl/texture.hpp"
@@ -23,47 +24,47 @@ namespace dubu::block {
 
 // clang-format off
 float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f, 
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,
+                                          
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+                                          
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                                          
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+                                          
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+                                          
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
 };
 // clang-format on
 constexpr GLuint indices[]{0, 1, 3, 3, 1, 2};
@@ -93,6 +94,9 @@ protected:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    gif1.Load("assets/textures/cute-bear.gif");
+    gif2.Load("assets/textures/bears.gif");
+
     texture1.Load("assets/textures/hotline-hanyu.png");
     texture2.Load("assets/textures/awesomeface.png");
 
@@ -104,19 +108,18 @@ protected:
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
-        1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(
+        2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    VertexShader vertexShader(dubu::block::read_file("assets/shaders/triangle.vert"));
-    if (auto err = vertexShader.GetError()) DUBU_LOG_ERROR("shader error: {}", *err);
-
+    VertexShader   vertexShader(dubu::block::read_file("assets/shaders/triangle.vert"));
     FragmentShader fragmentShader(dubu::block::read_file("assets/shaders/triangle.frag"));
-    if (auto err = fragmentShader.GetError()) DUBU_LOG_ERROR("shader error: {}", *err);
-
     mProgram.Link(vertexShader, fragmentShader);
     if (auto err = mProgram.GetError()) DUBU_LOG_ERROR("shader program error: {}", *err);
     mProgram.Use();
@@ -127,12 +130,18 @@ protected:
   virtual void Update() override {
     if (width <= 0 || height <= 0) return;
 
+    static float previousFrameTime = static_cast<float>(glfwGetTime());
+    const float  currentFrameTime  = static_cast<float>(glfwGetTime());
+    const float  deltaTime         = currentFrameTime - previousFrameTime;
+    previousFrameTime              = currentFrameTime;
+
     glClearColor(0.1f, 0.1f, 0.1f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 model = glm::mat4(1.0f);
     model           = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model           = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+    model           = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.13f, 0.5f, 1.0f));
 
     glm::mat4 view = glm::mat4(1.0f);
     view           = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -148,8 +157,12 @@ protected:
     trans           = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 
     mProgram.Use();
-    texture1.Bind(GL_TEXTURE0);
-    texture2.Bind(GL_TEXTURE1);
+    gif1.Bind(GL_TEXTURE0);
+    gif1.Update(deltaTime);
+    gif2.Bind(GL_TEXTURE1);
+    gif2.Update(deltaTime);
+    glUniform1f(mProgram.GetUniformLocation("frame1"), gif1.GetFrame());
+    glUniform1f(mProgram.GetUniformLocation("frame2"), gif2.GetFrame());
 
     glUniformMatrix4fv(mProgram.GetUniformLocation("mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -179,6 +192,7 @@ private:
 
   GLuint  vbo, vao, ebo;
   Texture texture1, texture2;
+  Gif     gif1, gif2;
 };
 }  // namespace dubu::block
 

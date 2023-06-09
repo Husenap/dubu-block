@@ -7,9 +7,10 @@ namespace dubu::block {
 template <GLenum SHADER_TYPE>
 class Shader {
 public:
-  Shader(std::string_view shaderCode) {
-    mShader           = glCreateShader(SHADER_TYPE);
-    const char* c_str = shaderCode.data();
+  Shader(std::vector<unsigned char> shaderCode) {
+    mShader = glCreateShader(SHADER_TYPE);
+    shaderCode.push_back(0);
+    auto c_str = reinterpret_cast<const char*>(shaderCode.data());
     glShaderSource(mShader, 1, &c_str, NULL);
     glCompileShader(mShader);
   }

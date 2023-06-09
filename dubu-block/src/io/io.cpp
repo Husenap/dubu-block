@@ -4,14 +4,14 @@
 
 namespace dubu::block {
 
-std::string read_file(std::string_view filepath) {
+std::vector<unsigned char> read_file(std::string_view filepath) {
   FILE* f;
   fopen_s(&f, filepath.data(), "rb");
 
   fseek(f, 0, SEEK_END);
   auto size = ftell(f);
 
-  std::string content;
+  std::vector<unsigned char> content;
   content.resize(size);
 
   rewind(f);
