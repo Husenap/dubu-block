@@ -2,6 +2,10 @@
 
 ## A blocky game built on C++/GLFW/OpenGL
 
+### Prerequisites
+
+Enable `Developer Mode` on windows to be able to symlink the assets directory without administrator privileges.
+
 ### Setup
 
 #### Setup and Entering devenv
@@ -12,6 +16,6 @@ meson devenv -C .build/
 
 #### Compile and run
 ```bash
-meson compile
+meson install
 ./dubu-block/dubu-block
 ```

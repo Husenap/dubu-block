@@ -1,0 +1,13 @@
+#version 460
+
+layout(local_size_x = 1, local_size_y = 1) in;
+layout(rgba32f, binding = 0) uniform image2D img_output;
+
+void main() {
+  vec2 pixel_coords = gl_GlobalInvocationID.xy;
+  vec4 pixel = vec4(mod(vec2(gl_GlobalInvocationID.xy) / 2048.0, 1.0), 0.0, 1.0);
+
+  vec4 prev = imageLoad(img_output, ivec2(pixel_coords));
+
+  imageStore(img_output, ivec2(pixel_coords), mix(prev, pixel, 0.01));
+}
