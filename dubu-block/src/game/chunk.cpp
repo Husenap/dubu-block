@@ -28,7 +28,9 @@ Chunk::Chunk(Atlas& atlas)
   VertexShader   vertexShader(dubu::block::read_file("assets/shaders/chunk.vert"));
   FragmentShader fragmentShader(dubu::block::read_file("assets/shaders/chunk.frag"));
   mProgram.Link(vertexShader, fragmentShader);
-  if (const auto err = mProgram.GetError()) DUBU_LOG_ERROR("shader program error: {}", *err);
+  if (const auto err = mProgram.GetError()) {
+    DUBU_LOG_ERROR("shader program error: {}", *err);
+  }
 }
 
 void Chunk::Draw(const glm::mat4& mvp) {

@@ -39,12 +39,16 @@ public:
       const auto filepath =
           id == 1 ? "assets/textures/block/stone.png" : "assets/textures/block/dirt.png";
       const auto data = stbi_load(filepath, &width, &height, &channels, 3);
-      if (!data) DUBU_LOG_FATAL("Failed to load texture: {}", filepath);
+      if (!data) {
+        DUBU_LOG_FATAL("Failed to load texture: {}", filepath);
+      }
 
       DUBU_LOG_DEBUG("Loaded texture: {}x{}, {} channels", width, height, channels);
 
       const auto rect = packer.Pack({(unsigned int)width, (unsigned int)height});
-      if (!rect) DUBU_LOG_FATAL("Failed to fit rect into atlas!");
+      if (!rect) {
+        DUBU_LOG_FATAL("Failed to fit rect into atlas!");
+      }
 
       glBindTexture(GL_TEXTURE_2D, texture);
       glTexSubImage2D(

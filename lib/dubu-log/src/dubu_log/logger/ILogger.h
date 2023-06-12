@@ -3,9 +3,10 @@
 #include <array>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <string>
 #include <string_view>
+
+#include "format.hpp"
 
 namespace dubu::log {
 
@@ -55,7 +56,7 @@ public:
       functionName = functionName.substr(pos + 1);
     }
 
-    const auto text = std::vformat(formatString, std::make_format_args(args...));
+    const auto text = shared::format(formatString, std::forward<Args>(args)...);
 
     InternalLog(level, fileName, line, functionName, text);
 
