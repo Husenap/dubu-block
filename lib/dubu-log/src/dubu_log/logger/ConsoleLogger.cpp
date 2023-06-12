@@ -1,5 +1,9 @@
 #include "ConsoleLogger.h"
 
+#include <iostream>
+
+#include "format.hpp"
+
 namespace dubu::log {
 
 void ConsoleLogger::InternalLog(LogLevel           level,
@@ -7,8 +11,8 @@ void ConsoleLogger::InternalLog(LogLevel           level,
                                 uint32_t           line,
                                 const std::string& function,
                                 const std::string& text) {
-  std::cout << std::format("[{}]: {}:{}:{}: {}", LogLevelString(level), file, line, function, text)
-            << std::endl;
+  dubu::log::format_to(
+      std::cout, "[{}]: {}:{}:{}: {}\n", LogLevelString(level), file, line, function, text);
 }
 
 }  // namespace dubu::log
