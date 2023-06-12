@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <format>
 
 namespace dubu::window {
 
@@ -206,11 +205,3 @@ struct GamepadState {
 };
 
 }  // namespace dubu::window
-
-template <>
-struct std::formatter<dubu::window::Key> : std::formatter<int> {
-  template <typename Context>
-  auto format(const dubu::window::Key key, Context& context) {
-    return formatter<int>::format(key, context);
-  }
-};
