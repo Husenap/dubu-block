@@ -4,7 +4,6 @@
 
 #include "Events.h"
 
-
 namespace dubu::window {
 
 enum class CursorMode {
