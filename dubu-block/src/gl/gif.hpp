@@ -22,7 +22,7 @@ public:
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
 
-    const auto rawData = read_file(filepath);
+    const auto rawData = ReadFile(filepath);
 
     auto data = stbi_load_gif_from_memory(rawData.data(),
                                           static_cast<int>(rawData.size()),

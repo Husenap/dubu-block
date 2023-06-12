@@ -25,8 +25,8 @@ Chunk::Chunk(Atlas& atlas)
 
   GenerateMesh();
 
-  VertexShader   vertexShader(dubu::block::read_file("assets/shaders/chunk.vert"));
-  FragmentShader fragmentShader(dubu::block::read_file("assets/shaders/chunk.frag"));
+  VertexShader   vertexShader(dubu::block::ReadFile("assets/shaders/chunk.vert"));
+  FragmentShader fragmentShader(dubu::block::ReadFile("assets/shaders/chunk.frag"));
   mProgram.Link(vertexShader, fragmentShader);
   if (const auto err = mProgram.GetError()) {
     DUBU_LOG_ERROR("shader program error: {}", *err);
