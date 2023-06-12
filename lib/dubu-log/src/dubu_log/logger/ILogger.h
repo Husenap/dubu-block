@@ -56,7 +56,7 @@ public:
       functionName = functionName.substr(pos + 1);
     }
 
-    const auto text = shared::format(formatString, std::forward<Args>(args)...);
+    const auto text = dubu::log::format(formatString, std::forward<Args>(args)...);
 
     InternalLog(level, fileName, line, functionName, text);
 

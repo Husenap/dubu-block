@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace shared {
+namespace dubu::log {
 
 template <typename... Args>
 inline void format_to(std::ostream& out, std::string_view format_string, Args&&... args) {
@@ -27,7 +27,7 @@ inline auto format(std::string_view format_string, Args&&... args) {
   return output.str();
 }
 
-}  // namespace shared
+}  // namespace dubu::log
 
 namespace {
 template <typename T>
@@ -62,7 +62,7 @@ std::ostream& operator<<(std::ostream& out, const T (&a)[N]) {
 
 template <typename T, typename U>
 std::ostream& operator<<(std::ostream& out, const std::pair<T, U>& p) {
-  shared::format_to(out, "({},{})", p.first, p.second);
+  dubu::log::format_to(out, "({},{})", p.first, p.second);
   return out;
 }
 
@@ -72,7 +72,7 @@ std::ostream& operator<<(std::ostream& out, const std::tuple<Args...>& t) {
   bool isFirst = true;
   std::apply(
       [&out, &isFirst](auto&... x) {
-        (..., (shared::format_to(out, "{}{}", isFirst ? "" : ",", x), isFirst = false));
+        (..., (dubu::log::format_to(out, "{}{}", isFirst ? "" : ",", x), isFirst = false));
       },
       t);
   out << ')';
