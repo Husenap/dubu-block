@@ -81,8 +81,6 @@ public:
 
 protected:
   virtual void Init() override {
-    mKeyPressToken = mWindow->RegisterListener<dubu::window::EventKeyPress>(
-        [&](const auto& e) { DUBU_LOG_DEBUG("key event: {}", e.key); });
     mResizeToken = mWindow->RegisterListener<dubu::window::EventResize>([&](const auto& e) {
       width  = e.width;
       height = e.height;
@@ -200,7 +198,7 @@ protected:
 private:
   ShaderProgram      mProgram;
   GLuint             mImage;
-  dubu::event::Token mKeyPressToken, mResizeToken;
+  dubu::event::Token mResizeToken;
 
   int width  = 1920;
   int height = 1080;
