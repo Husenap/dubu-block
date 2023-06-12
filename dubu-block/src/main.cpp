@@ -14,6 +14,8 @@
 #include <imgui.h>
 #include <stb/stb_image.h>
 
+#include "game/atlas.hpp"
+#include "game/chunk.hpp"
 #include "gl/gif.hpp"
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
@@ -88,12 +90,15 @@ protected:
     });
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    atlas = std::make_unique<Atlas>();
+    chunk = std::make_unique<Chunk>(*atlas);
+    // atlas.Load("assets/textures/awesomeface.png");
 
+    /*
     gif1.Load("assets/textures/cute-bear.gif");
     gif2.Load("assets/textures/bears.gif");
 
@@ -121,41 +126,37 @@ protected:
     VertexShader   vertexShader(dubu::block::read_file("assets/shaders/triangle.vert"));
     FragmentShader fragmentShader(dubu::block::read_file("assets/shaders/triangle.frag"));
     mProgram.Link(vertexShader, fragmentShader);
-    if (auto err = mProgram.GetError()) DUBU_LOG_ERROR("shader program error: {}", *err);
+    if (const auto err = mProgram.GetError()) DUBU_LOG_ERROR("shader program error: {}", *err);
     mProgram.Use();
     glUniform1i(mProgram.GetUniformLocation("texture1"), 0);
     glUniform1i(mProgram.GetUniformLocation("texture2"), 1);
+    */
   }
 
   virtual void Update() override {
     if (width <= 0 || height <= 0) return;
 
-    static float previousFrameTime = static_cast<float>(glfwGetTime());
-    const float  currentFrameTime  = static_cast<float>(glfwGetTime());
-    const float  deltaTime         = currentFrameTime - previousFrameTime;
-    previousFrameTime              = currentFrameTime;
+    static float previousTime = static_cast<float>(glfwGetTime());
+    const float  time         = static_cast<float>(glfwGetTime());
+    const float  deltaTime    = time - previousTime;
+    previousTime              = time;
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model           = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model           = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-    model           = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.13f, 0.5f, 1.0f));
+    const glm::mat4 model = glm::mat4(1.0f);
 
-    glm::mat4 view = glm::mat4(1.0f);
-    view           = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    const glm::mat4 view = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::mat4 projection =
-        glm::perspective(glm::radians(45.0f), static_cast<float>(width) / height, 0.1f, 100.f);
+    const glm::mat4 projection =
+        glm::perspective(glm::radians(45.0f), static_cast<float>(width) / height, 0.1f, 500.f);
 
-    glm::mat4 mvp = projection * view * model;
+    const glm::mat4 mvp = projection * view * model;
 
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans           = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans           = glm::rotate(trans, static_cast<float>(glfwGetTime()), glm::vec3(0, 0, 1));
-    trans           = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+    atlas->Bind(GL_TEXTURE0);
+    chunk->Draw(mvp);
 
+    /*
     mProgram.Use();
     gif1.Bind(GL_TEXTURE0);
     gif1.Update(deltaTime);
@@ -168,6 +169,7 @@ protected:
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    */
 
     if (ImGui::Begin("Debug")) {
       static bool wireframe    = false;
@@ -178,8 +180,21 @@ protected:
       if (ImGui::Checkbox("Depth Testing", &depthTesting)) {
         (depthTesting ? glEnable : glDisable)(GL_DEPTH_TEST);
       }
+      ImGui::DragFloat3("Camera Position", glm::value_ptr(cameraPosition));
+      ImGui::DragFloat3("Camera Look At", glm::value_ptr(cameraLookAt));
+
+      ImGui::Separator();
+      static float bias = 0.f;
+      ImGui::DragFloat("LOD Bias", &bias);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, bias);
+
+      atlas->Debug();
+      // chunk->Debug();
     }
     ImGui::End();
+
+    ImGui::ShowDemoWindow();
+    ImGui::ShowMetricsWindow();
   }
 
 private:
@@ -193,6 +208,10 @@ private:
   GLuint  vbo, vao, ebo;
   Texture texture1, texture2;
   Gif     gif1, gif2;
+
+  std::unique_ptr<Chunk> chunk;
+  std::unique_ptr<Atlas> atlas;
+  glm::vec3              cameraPosition{6, 4, 6}, cameraLookAt{0, 0.5f, 0};
 };
 }  // namespace dubu::block
 

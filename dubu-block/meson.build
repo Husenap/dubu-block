@@ -1,10 +1,12 @@
 dubu_block = executable('dubu-block', 
   [
+    'src/game/chunk.cpp',
     'src/io/io.cpp',
     'src/main.cpp'
   ],
+  include_directories: include_directories('./src'),
   cpp_pch: 'pch/pch.h',
-  dependencies: [dubu_opengl_app_dep, glm_dep, stb_dep])
+  dependencies: [dubu_opengl_app_dep, dubu_rect_pack_dep, glm_dep, stb_dep])
 
 install_symlink(
   'assets',

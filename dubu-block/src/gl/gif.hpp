@@ -67,7 +67,7 @@ public:
 private:
   GLuint texture;
   float  currentTime;
-  int*   delays;
+  int*   delays       = nullptr;
   int    currentFrame = 0;
   int    frames;
 };

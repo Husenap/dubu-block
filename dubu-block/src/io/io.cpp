@@ -2,11 +2,16 @@
 
 #include <cstdio>
 
+#include <dubu_log/dubu_log.h>
+
 namespace dubu::block {
 
 std::vector<unsigned char> read_file(std::string_view filepath) {
   FILE* f;
-  fopen_s(&f, filepath.data(), "rb");
+
+  if (fopen_s(&f, filepath.data(), "rb") != 0) {
+    DUBU_LOG_FATAL("Failed to open file: {}", filepath);
+  }
 
   fseek(f, 0, SEEK_END);
   auto size = ftell(f);
