@@ -5,15 +5,21 @@
 #include <glm/glm.hpp>
 
 #include "game/atlas.hpp"
+#include "game/block.hpp"
 #include "gl/mesh.hpp"
 #include "gl/shader_program.hpp"
 
 namespace dubu::block {
+
+using ChunkCoords = std::pair<int, int>;
+
 class Chunk {
 public:
-  Chunk(Atlas& atlas);
+  static constexpr glm::ivec3 ChunkSize{16, 384, 16};
 
-  void Draw(const glm::mat4& mvp);
+  Chunk(Atlas& atlas, const BlockDescriptions& blockDescriptions);
+
+  int  Draw(const glm::mat4& mvp);
   void Debug();
 
 private:
@@ -98,9 +104,8 @@ private:
          {0, 1, 2, 0, 2, 3}},
   }};
 
-  static constexpr glm::ivec3 ChunkSize{16, 384, 16};  //{16, 384, 16};
-
-  std::array<uint8_t, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
+  std::array<BlockId, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
+  const BlockDescriptions&                                     mBlockDescriptions;
 
   Mesh          mMesh;
   ShaderProgram mProgram;

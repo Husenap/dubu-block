@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <dubu_log/dubu_log.h>
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 namespace dubu::block {
 class Mesh {
@@ -61,10 +61,11 @@ public:
   void Bind() { glBindVertexArray(vao); }
   void Unbind() { glBindVertexArray(0); }
 
-  void Draw() {
+  int Draw() {
     Bind();
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     Unbind();
+    return indexCount / 3;
   }
 
 private:

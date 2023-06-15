@@ -3,7 +3,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <dubu_log/dubu_log.h>
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 namespace dubu::opengl_app {
 
@@ -51,9 +51,7 @@ void AppBase::InitWindow() {
       }));
 
   glfwMakeContextCurrent(mWindow->GetGLFWHandle());
-  if (!gladLoadGL(reinterpret_cast<GLADloadfunc>(glfwGetProcAddress))) {
-    DUBU_LOG_FATAL("Failed to init glad");
-  }
+  gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 
   glViewport(0, 0, mCreateInfo.width, mCreateInfo.height);
   glfwSwapInterval(mCreateInfo.swapInterval);

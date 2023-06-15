@@ -1,6 +1,6 @@
 glad = static_library('glad',
   [
-    'src/gl.c'
+    'src/glad.c'
   ],
   include_directories: include_directories('./include'))
 

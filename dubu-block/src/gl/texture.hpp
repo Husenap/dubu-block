@@ -1,7 +1,7 @@
 #pragma once
 
 #include <dubu_log/dubu_log.h>
-#include <glad/gl.h>
+#include <glad/glad.h>
 #include <stb/stb_image.h>
 
 namespace dubu::block {

@@ -10,14 +10,19 @@
 
 namespace dubu::block {
 
-Chunk::Chunk(Atlas& atlas)
+Chunk::Chunk(Atlas& atlas, const BlockDescriptions& blockDescriptions)
     : mMesh({.usage = GL_DYNAMIC_DRAW})
-    , mAtlas(atlas) {
+    , mAtlas(atlas)
+    , mBlockDescriptions(blockDescriptions) {
   for (int i = 0; i < blocks.size(); ++i) {
     if (IndexToCoords(i).y < 64) {
-      blocks[i] = rand() % 2;
+      blocks[i] = 1;
     } else if (IndexToCoords(i).y < 128) {
-      blocks[i] = (rand() % 2) * 2;
+      blocks[i] = 2;
+    } else if (IndexToCoords(i).y < 192) {
+      blocks[i] = 3;
+    } else if (IndexToCoords(i).y < 100) {
+      blocks[i] = 4;
     } else {
       blocks[i] = 0;
     }
@@ -33,10 +38,10 @@ Chunk::Chunk(Atlas& atlas)
   }
 }
 
-void Chunk::Draw(const glm::mat4& mvp) {
+int Chunk::Draw(const glm::mat4& mvp) {
   mProgram.Use();
   glUniformMatrix4fv(mProgram.GetUniformLocation("mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
-  mMesh.Draw();
+  return mMesh.Draw();
 }
 
 void Chunk::Debug() {
@@ -66,9 +71,12 @@ void Chunk::Debug() {
 void Chunk::GenerateMesh() {
   Timer timer("Chunk::GenerateMesh");
 
-  std::vector<glm::vec3>    vertices;
-  std::vector<glm::vec2>    uvs;
-  std::vector<unsigned int> indices;
+  static std::vector<glm::vec3>    vertices;
+  static std::vector<glm::vec2>    uvs;
+  static std::vector<unsigned int> indices;
+  vertices.clear();
+  uvs.clear();
+  indices.clear();
   for (int z = 0; z < ChunkSize.z; ++z) {
     for (int y = 0; y < ChunkSize.y; ++y) {
       for (int x = 0; x < ChunkSize.x; ++x) {
@@ -77,12 +85,19 @@ void Chunk::GenerateMesh() {
 
         const auto blockId = blocks[index];
 
-        if (blockId == 0) continue;
+        if (blockId == BlockType::Empty) continue;
 
         for (int d = 0; d < Directions.size(); ++d) {
-          const auto otherCoord = myCoord + Directions[d];
+          const auto& dir        = Directions[d];
+          const auto  otherCoord = myCoord + dir;
 
-          if (areCoordsBounded(otherCoord) && blocks[CoordsToIndex(otherCoord)] != 0) continue;
+          if (areCoordsBounded(otherCoord)) {
+            const auto otherBlockId = blocks[CoordsToIndex(otherCoord)];
+            if (otherBlockId != BlockType::Empty) {
+              auto& otherBlockDescription = mBlockDescriptions.GetBlockDescription(otherBlockId);
+              if (otherBlockDescription.IsSolid()) continue;
+            }
+          }
 
           const auto& faceData = DirectionToFace[d];
 
@@ -92,7 +107,7 @@ void Chunk::GenerateMesh() {
           vertices.push_back(faceData.vertices[2] + offsetPosition);
           vertices.push_back(faceData.vertices[3] + offsetPosition);
 
-          const auto [uvPos, uvSize] = mAtlas.GetUVs(blockId);
+          const auto [uvPos, uvSize] = mAtlas.GetUVs(blockId, dir);
           uvs.push_back(uvPos + uvSize * glm::vec2{0, 1});
           uvs.push_back(uvPos + uvSize * glm::vec2{1, 1});
           uvs.push_back(uvPos + uvSize * glm::vec2{1, 0});

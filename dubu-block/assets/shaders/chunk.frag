@@ -7,6 +7,11 @@ uniform sampler2D atlas;
 in vec2 UV;
 
 void main(){
-  vec3 color = texture(atlas, UV).rgb;
-  FragColor = vec4(color, 1.0);
+  vec4 texel = texture(atlas, UV);
+
+  if(texel.a < 0.5){
+    discard;
+  }
+
+  FragColor = vec4(texel.rgb, 1.0);
 }
