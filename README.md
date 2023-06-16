@@ -19,3 +19,10 @@ meson devenv -C .build/
 meson install
 ./dubu-block/dubu-block
 ```
+
+### Todo
+
+- [ ] Implement the possibility of querying a block on specific coordinates
+- [ ] Fix ambient occlusion between chunks
+- [ ] Implement a firs person avatar that can run around in the world
+- [ ] Fix github language stats
