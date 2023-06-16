@@ -26,4 +26,7 @@ meson install
 - [ ] Fix ambient occlusion between chunks
 - [ ] Implement a firs person avatar that can run around in the world
 - [ ] Figure out a way to color leaves and grass using mask
+- [ ] Refactor code to allow more types of renderers
+- [ ] Implement a basic text renderer
+- [ ] Build a UI system?
 - [ ] Fix github language stats
