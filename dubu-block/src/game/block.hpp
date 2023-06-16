@@ -13,7 +13,8 @@ using BlockId = uint8_t;
 class BlockDescription {
 public:
   struct CreateInfo {
-    std::vector<std::string_view> texturePaths;
+    std::vector<std::string_view> texturePaths  = {};
+    glm::vec3                     color         = {1, 1, 1};
     int                           topTexture    = 0;
     int                           sideTexture   = 0;
     int                           bottomTexture = 0;
@@ -28,9 +29,13 @@ public:
     if (direction.y < -0.5f) return mCreateInfo.bottomTexture;
     return mCreateInfo.sideTexture;
   }
+
   inline std::string_view GetTexturePath(int index) const {
     return mCreateInfo.texturePaths[index];
   }
+
+  inline const glm::vec3& GetColor() const { return mCreateInfo.color; }
+
   inline bool IsSolid() const { return mCreateInfo.isSolid; }
   inline bool IsTransparent() const { return !mCreateInfo.isSolid; }
 
@@ -41,26 +46,30 @@ private:
 
 enum BlockType : BlockId {
   Empty     = 0,
-  Stone     = 1,
-  Dirt      = 2,
-  Barrel    = 3,
-  OakLeaves = 4,
+  Bedrock   = 1,
+  Stone     = 2,
+  Dirt      = 3,
+  Grass     = 4,
+  OakLeaves = 5,
 };
 
 class BlockDescriptions {
 public:
   BlockDescriptions() {
+    RegisterBlock(Bedrock, {{.texturePaths = {{"assets/textures/block/bedrock.png"}}}});
     RegisterBlock(Stone, {{.texturePaths = {{"assets/textures/block/stone.png"}}}});
     RegisterBlock(Dirt, {{.texturePaths = {{"assets/textures/block/dirt.png"}}}});
-    RegisterBlock(Barrel,
-                  {{.texturePaths  = {{"assets/textures/block/barrel_top.png",
-                                       "assets/textures/block/barrel_side.png",
-                                       "assets/textures/block/barrel_bottom.png"}},
+    RegisterBlock(Grass,
+                  {{.texturePaths  = {{"assets/textures/block/grass_carried.png",
+                                       "assets/textures/block/grass_side_carried.png",
+                                       "assets/textures/block/dirt.png"}},
                     .topTexture    = 0,
                     .sideTexture   = 1,
                     .bottomTexture = 2}});
     RegisterBlock(OakLeaves,
-                  {{.texturePaths = {{"assets/textures/block/oak_leaves.png"}}, .isSolid = false}});
+                  {{.texturePaths = {{"assets/textures/block/oak_leaves.png"}},
+                    .color        = {0.1f, 1.f, 0.2f},
+                    .isSolid      = false}});
   }
   void RegisterBlock(BlockId id, BlockDescription description) {
     auto [it, inserted] = mBlockDescriptions.try_emplace(id, description);
@@ -75,7 +84,10 @@ public:
   }
   const BlockDescription& GetBlockDescription(BlockId id) const {
     auto it = mBlockDescriptions.find(id);
-    if (it == mBlockDescriptions.end()) return mErrorBlockDescription;
+    if (it == mBlockDescriptions.end()) {
+      DUBU_LOG_ERROR("Tried to access unknown block id:{}", (int)id);
+      return mErrorBlockDescription;
+    }
     return it->second;
   }
   const BlockDescription& GetErrorBlockDescription() const { return mErrorBlockDescription; }

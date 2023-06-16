@@ -11,6 +11,12 @@ public:
   struct CreateInfo {
     GLenum usage = GL_STATIC_DRAW;
   };
+  struct Vertex {
+    glm::vec3 position;
+    glm::vec3 color;
+    glm::vec2 uv0;
+  };
+
   Mesh(const CreateInfo createInfo)
       : mCreateInfo(createInfo) {
     glGenVertexArrays(1, &vao);
@@ -23,43 +29,31 @@ public:
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, sizeof(mVertices[0]), (GLvoid*)offsetof(Vertex, position));
+        0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
-        1, 2, GL_FLOAT, GL_FALSE, sizeof(mVertices[0]), (GLvoid*)offsetof(Vertex, uv));
+        1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv0));
     Unbind();
   }
 
-  void SetVertices(const std::vector<glm::vec3>& vertices) {
-    mVertices.resize(vertices.size());
-    for (int i = 0; i < mVertices.size(); ++i) mVertices[i].position = vertices[i];
-  }
-  void SetUVs(const std::vector<glm::vec2>& uvs) {
-    mVertices.resize(uvs.size());
-    for (int i = 0; i < mVertices.size(); ++i) mVertices[i].uv = uvs[i];
-  }
-  void SetIndices(const std::vector<GLuint>& indices) {
+  void UpdateMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices) {
     Bind();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                  indices.size() * sizeof(indices[0]),
                  indices.data(),
                  mCreateInfo.usage);
     indexCount = static_cast<GLsizei>(indices.size());
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(
+        GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), mCreateInfo.usage);
     Unbind();
   }
-
-  void UpdateMesh() {
-    Bind();
-    glBufferData(GL_ARRAY_BUFFER,
-                 mVertices.size() * sizeof(mVertices[0]),
-                 mVertices.data(),
-                 mCreateInfo.usage);
-    Unbind();
-  }
-
-  void Bind() { glBindVertexArray(vao); }
-  void Unbind() { glBindVertexArray(0); }
 
   int Draw() {
     Bind();
@@ -69,14 +63,12 @@ public:
   }
 
 private:
+  void Bind() { glBindVertexArray(vao); }
+  void Unbind() { glBindVertexArray(0); }
+
   const CreateInfo mCreateInfo;
   GLuint           vao, vbo, ebo;
 
-  struct Vertex {
-    glm::vec3 position;
-    glm::vec2 uv;
-  };
-  std::vector<Vertex> mVertices;
-  GLsizei             indexCount;
+  GLsizei indexCount;
 };
 }  // namespace dubu::block

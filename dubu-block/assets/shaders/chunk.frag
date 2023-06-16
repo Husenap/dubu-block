@@ -4,14 +4,23 @@ out vec4 FragColor;
 
 uniform sampler2D atlas;
 
-in vec2 UV;
+in vec3 color;
+in vec2 uv0;
+
+in vec4 fogColor;
 
 void main(){
-  vec4 texel = texture(atlas, UV);
+  vec4 texel = texture(atlas, uv0);
 
   if(texel.a < 0.5){
     discard;
   }
 
-  FragColor = vec4(texel.rgb, 1.0);
+  vec3 diffuse = texel.rgb;
+
+  diffuse *= color;
+
+  diffuse = mix(diffuse, fogColor.rgb, fogColor.a);
+
+  FragColor = vec4(diffuse, 1.0);
 }

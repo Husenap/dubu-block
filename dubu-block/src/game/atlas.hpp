@@ -27,7 +27,7 @@ public:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexStorage2D(GL_TEXTURE_2D, 6, GL_RGBA8, Size, Size);
+    glTexStorage2D(GL_TEXTURE_2D, 5, GL_RGBA8, Size, Size);
   }
 
   ~Atlas() { glDeleteTextures(1, &mTexture); }
@@ -63,8 +63,12 @@ public:
 
       stbi_image_free(data);
 
-      DUBU_LOG_DEBUG(
-          "Fit Rect into Atlas at:({},{}) with size:({},{})", rect->x, rect->y, rect->w, rect->h);
+      DUBU_LOG_DEBUG("Fit Rect into Atlas at:({},{}) with size:({},{}), texture:{}",
+                     rect->x,
+                     rect->y,
+                     rect->w,
+                     rect->h,
+                     filepath);
       it = mIdToUV
                .emplace(key,
                         std::make_pair(glm::vec2(rect->x / AtlasSize.x, rect->y / AtlasSize.y),
