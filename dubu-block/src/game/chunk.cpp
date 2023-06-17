@@ -133,14 +133,14 @@ void Chunk::GenerateMesh() {
             const auto otherBlockId = blocks[CoordsToIndex(otherCoord)];
             if (otherBlockId != BlockType::Empty) {
               auto& otherBlockDescription = mBlockDescriptions.GetBlockDescription(otherBlockId);
-              if (otherBlockDescription.IsSolid()) continue;
+              if (otherBlockDescription.IsOpaque()) continue;
             }
           }
 
           const auto& faceData = DirectionToFace[d];
 
           const glm::vec3 offsetPosition = myCoord;
-          const auto [uvPos, uvSize]     = mAtlas.GetUVs(blockId, dir);
+          const auto [uvPos0, uvSize0]   = mAtlas.GetUVs(blockId, dir);
           const glm::vec3        color = mBlockDescriptions.GetBlockDescription(blockId).GetColor();
           static constexpr float ao    = 0.25f;
 
@@ -151,7 +151,7 @@ void Chunk::GenerateMesh() {
                                          IsEmpty(myCoord + faceData.aoNeighbours[0][1]) +
                                          IsEmpty(myCoord + faceData.aoNeighbours[0][2]))) *
                                    ao),
-               uvPos + uvSize * glm::vec2{0, 1}});
+               uvPos0 + uvSize0 * glm::vec2{0, 1}});
           vertices.push_back(
               {faceData.vertices[1] + offsetPosition,
                color * (1.0f + std::max(-2,
@@ -159,7 +159,7 @@ void Chunk::GenerateMesh() {
                                          IsEmpty(myCoord + faceData.aoNeighbours[1][1]) +
                                          IsEmpty(myCoord + faceData.aoNeighbours[1][2]))) *
                                    ao),
-               uvPos + uvSize * glm::vec2{1, 1}});
+               uvPos0 + uvSize0 * glm::vec2{1, 1}});
           vertices.push_back(
               {faceData.vertices[2] + offsetPosition,
                color * (1.0f + std::max(-2,
@@ -167,7 +167,7 @@ void Chunk::GenerateMesh() {
                                          IsEmpty(myCoord + faceData.aoNeighbours[2][1]) +
                                          IsEmpty(myCoord + faceData.aoNeighbours[2][2]))) *
                                    ao),
-               uvPos + uvSize * glm::vec2{1, 0}});
+               uvPos0 + uvSize0 * glm::vec2{1, 0}});
           vertices.push_back(
               {faceData.vertices[3] + offsetPosition,
                color * (1.0f + std::max(-2,
@@ -175,7 +175,7 @@ void Chunk::GenerateMesh() {
                                          IsEmpty(myCoord + faceData.aoNeighbours[3][1]) +
                                          IsEmpty(myCoord + faceData.aoNeighbours[3][2]))) *
                                    ao),
-               uvPos + uvSize * glm::vec2{0, 0}});
+               uvPos0 + uvSize0 * glm::vec2{0, 0}});
 
           const unsigned int startIndex = static_cast<unsigned int>(vertices.size()) - 4;
           indices.push_back(startIndex + faceData.indices[0]);

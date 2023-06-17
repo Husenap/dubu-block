@@ -18,7 +18,7 @@ public:
     int                           topTexture    = 0;
     int                           sideTexture   = 0;
     int                           bottomTexture = 0;
-    bool                          isSolid       = true;
+    bool                          isOpaque      = true;
   };
 
   BlockDescription(const CreateInfo createInfo)
@@ -36,8 +36,8 @@ public:
 
   inline const glm::vec3& GetColor() const { return mCreateInfo.color; }
 
-  inline bool IsSolid() const { return mCreateInfo.isSolid; }
-  inline bool IsTransparent() const { return !mCreateInfo.isSolid; }
+  inline bool IsOpaque() const { return mCreateInfo.isOpaque; }
+  inline bool IsTransparent() const { return !mCreateInfo.isOpaque; }
 
 private:
   friend class BlockDescriptions;
@@ -61,15 +61,16 @@ public:
     RegisterBlock(Dirt, {{.texturePaths = {{"assets/textures/block/dirt.png"}}}});
     RegisterBlock(Grass,
                   {{.texturePaths  = {{"assets/textures/block/grass_carried.png",
-                                       "assets/textures/block/grass_side_carried.png",
+                                       "assets/textures/block/grass_side.tga",
                                        "assets/textures/block/dirt.png"}},
                     .topTexture    = 0,
                     .sideTexture   = 1,
-                    .bottomTexture = 2}});
+                    .bottomTexture = 2,
+                    .isOpaque      = false}});
     RegisterBlock(OakLeaves,
                   {{.texturePaths = {{"assets/textures/block/oak_leaves.png"}},
                     .color        = {0.1f, 1.f, 0.2f},
-                    .isSolid      = false}});
+                    .isOpaque     = false}});
   }
   void RegisterBlock(BlockId id, BlockDescription description) {
     auto [it, inserted] = mBlockDescriptions.try_emplace(id, description);
