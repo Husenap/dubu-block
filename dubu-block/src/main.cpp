@@ -20,6 +20,7 @@
 #include "game/atlas.hpp"
 #include "game/block.hpp"
 #include "game/chunk.hpp"
+#include "game/chunk_manager.hpp"
 #include "gl/debug_drawer.hpp"
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
@@ -60,6 +61,9 @@ protected:
     }
 
     atlas = std::make_unique<Atlas>(blockDescriptions);
+
+    mChunkManager = std::make_unique<ChunkManager>(*atlas, blockDescriptions);
+
     CalculateChunkIndexTable();
   }
 
@@ -88,29 +92,7 @@ protected:
   }
 
   virtual void Update() override {
-    if (!chunkBuffer.empty()) {
-      const auto removeFrom =
-          std::remove_if(chunkBuffer.begin(), chunkBuffer.end(), [this](const auto& coords) {
-            return ChunkDistanceFromCamera(coords) > 500 * 500;
-          });
-      for (auto it = removeFrom; it != chunkBuffer.end(); ++it) {
-        seen.extract(*it);
-      }
-      chunkBuffer.erase(removeFrom, chunkBuffer.end());
-    }
-
-    if (!chunkBuffer.empty()) {
-      const auto pred = [this](const auto& lhs, const auto& rhs) {
-        return ChunkDistanceFromCamera(lhs) > ChunkDistanceFromCamera(rhs);
-      };
-      std::sort(chunkBuffer.begin(), chunkBuffer.end(), pred);
-
-      const auto coords = chunkBuffer.back();
-      chunkBuffer.pop_back();
-
-      chunks.emplace(coords, std::make_unique<Chunk>(coords, *atlas, blockDescriptions));
-      seen.extract(coords);
-    }
+    mChunkManager->Update(cameraPosition);
 
     if (width <= 0 || height <= 0) return;
 
@@ -161,10 +143,11 @@ protected:
       }
 
       const ChunkCoords chunkCoords{x, z};
-      if (auto chunk = chunks.find(chunkCoords); chunk != chunks.end()) {
+      if (auto chunk = mChunkManager->FindChunk(chunkCoords); chunk) {
         const auto chunkModel =
             glm::translate(model, glm::vec3(x * Chunk::ChunkSize.x, 0, z * Chunk::ChunkSize.z));
         const glm::mat4 mvp = viewProjection * chunkModel;
+
         chunkProgram.Use();
         glUniformMatrix4fv(
             chunkProgram.GetUniformLocation("MODELVIEWPROJ"), 1, GL_FALSE, glm::value_ptr(mvp));
@@ -180,13 +163,15 @@ protected:
         glUniform1f(chunkProgram.GetUniformLocation("RENDER_DISTANCE"),
                     static_cast<float>(mRenderDistance * Chunk::ChunkSize.z));
         glUniform2fv(chunkProgram.GetUniformLocation("FOG_CONTROL"), 1, glm::value_ptr(fogControl));
-        triangles += chunk->second->Draw();
+
+        triangles += chunk->Draw();
         ++chunksDrawn;
-      } else {
-        if (!seen.contains(chunkCoords)) {
-          chunkBuffer.push_back(chunkCoords);
-          seen.insert(chunkCoords);
+
+        if (!chunk->HasBeenOptimized()) {
+          mChunkManager->LoadChunk(chunkCoords, ChunkManager::ChunkLoadingPriority::Optimize);
         }
+      } else {
+        mChunkManager->LoadChunk(chunkCoords, ChunkManager::ChunkLoadingPriority::Generate);
       }
     }
 
@@ -213,7 +198,7 @@ protected:
 
       ImGui::Separator();
 
-      ImGui::LabelText("Chunks Loaded", "%d", chunks.size());
+      mChunkManager->Debug();
       ImGui::LabelText("Chunks Drawn", "%d", chunksDrawn);
       ImGui::LabelText("Chunks Culled", "%d", chunksCulled);
       ImGui::LabelText("Triangles Drawn", "%d", triangles);
@@ -232,32 +217,24 @@ protected:
   }
 
 private:
-  inline float ChunkDistanceFromCamera(const ChunkCoords& coords) const {
-    const float dx = (coords.first + 0.5f) - cameraPosition.x / (float)(Chunk::ChunkSize.x);
-    const float dz = (coords.second + 0.5f) - cameraPosition.z / (float)(Chunk::ChunkSize.z);
-    const float d  = dx * dx + dz * dz;
-    return d;
-  }
-
   dubu::event::Token mResizeToken;
 
   int width  = 1920;
   int height = 1080;
 
-  int mRenderDistance = 20;
+  int mRenderDistance = 10;
 
-  std::unordered_map<ChunkCoords, std::unique_ptr<Chunk>> chunks;
-  ShaderProgram                                           chunkProgram;
-  std::vector<ChunkCoords>                                chunkBuffer;
-  std::vector<ChunkCoords>                                chunkIndexTable;
-  std::unordered_set<ChunkCoords>                         seen;
+  ShaderProgram                    chunkProgram;
+  std::vector<std::pair<int, int>> chunkIndexTable;
+
+  std::unique_ptr<ChunkManager> mChunkManager;
 
   std::unique_ptr<Atlas> atlas;
   BlockDescriptions      blockDescriptions;
 
-  glm::vec3 cameraPosition{8.59f, 143.64f, 60.38f};
-  float     pitch = -44.391f;
-  float     yaw   = 66.008f;
+  glm::vec3 cameraPosition{-8, 167, 25};
+  float     pitch = -22;
+  float     yaw   = -2.7f;
 
   glm::vec3 skyColor{0.45f, 0.76f, 1.0f};
   glm::vec2 fogControl{2.f, 250000.f};

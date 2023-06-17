@@ -61,12 +61,11 @@ public:
     RegisterBlock(Dirt, {{.texturePaths = {{"assets/textures/block/dirt.png"}}}});
     RegisterBlock(Grass,
                   {{.texturePaths  = {{"assets/textures/block/grass_carried.png",
-                                       "assets/textures/block/grass_side.tga",
+                                       "assets/textures/block/grass_side_carried.png",
                                        "assets/textures/block/dirt.png"}},
                     .topTexture    = 0,
                     .sideTexture   = 1,
-                    .bottomTexture = 2,
-                    .isOpaque      = false}});
+                    .bottomTexture = 2}});
     RegisterBlock(OakLeaves,
                   {{.texturePaths = {{"assets/textures/block/oak_leaves.png"}},
                     .color        = {0.1f, 1.f, 0.2f},

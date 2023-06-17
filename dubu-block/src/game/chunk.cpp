@@ -4,64 +4,35 @@
 #include <glm/gtc/random.hpp>
 #include <imgui.h>
 
+#include "chunk_manager.hpp"
 #include "io/io.hpp"
+#include "perlin_noise.hpp"
 #include "util/timer.hpp"
 
 namespace dubu::block {
 
-float random(glm::vec2 st) {
-  return glm::fract(glm::sin(glm::dot(st, glm::vec2(12.9898f, 78.233f))) * 43758.5453123f);
-}
-float noise(glm::vec2 st) {
-  const glm::vec2 i = floor(st);
-  const glm::vec2 f = fract(st);
-
-  // Four corners in 2D of a tile
-  const float a = random(i);
-  const float b = random(i + glm::vec2(1.0f, 0.0f));
-  const float c = random(i + glm::vec2(0.0f, 1.0f));
-  const float d = random(i + glm::vec2(1.0f, 1.0f));
-
-  const glm::vec2 u = f * f * (3.0f - 2.0f * f);
-
-  return glm::mix(a, b, u.x) + (c - a) * u.y * (1.0f - u.x) + (d - b) * u.x * u.y;
-}
-
-#define OCTAVES 6
-float fbm(glm::vec2 st) {
-  // Initial values
-  float value     = 0.0;
-  float amplitude = .5;
-  //
-  // Loop of octaves
-  for (int i = 0; i < OCTAVES; i++) {
-    value += amplitude * noise(st);
-    st *= 2.f;
-    amplitude *= .5f;
-  }
-  return value;
-}
-
 Chunk::Chunk(const ChunkCoords        chunkCoords,
+             const ChunkManager&      chunkManager,
              Atlas&                   atlas,
              const BlockDescriptions& blockDescriptions)
-    : mMesh({.usage = GL_DYNAMIC_DRAW})
+    : mChunkCoords(chunkCoords)
+    , mChunkBlockOffset({chunkCoords.x * Chunk::ChunkSize.x, chunkCoords.z * Chunk::ChunkSize.z})
+    , mMesh({.usage = GL_DYNAMIC_DRAW})
+    , mChunkManager(chunkManager)
     , mAtlas(atlas)
     , mBlockDescriptions(blockDescriptions) {
-  const glm::vec2 chunkBlockCoords = {chunkCoords.first * static_cast<float>(Chunk::ChunkSize.x),
-                                      chunkCoords.second * static_cast<float>(Chunk::ChunkSize.z)};
-
   blocks.fill(BlockType::Empty);
 
   for (int x = 0; x < ChunkSize.x; ++x) {
     for (int z = 0; z < ChunkSize.z; ++z) {
       blocks[CoordsToIndex({x, 0, z})] = BlockType::Bedrock;
 
-      const glm::vec2 blockCoords = {chunkBlockCoords.x + x, chunkBlockCoords.y + z};
+      const glm::vec2 blockCoords{mChunkBlockOffset.x + x, mChunkBlockOffset.z + z};
 
       const int height = static_cast<int>(
-          128 + std::max(fbm(blockCoords * 0.05f) * 8.0f,
-                         std::powf(1.0f - std::powf(fbm(blockCoords * 0.04f + 100.f), 2.0f), 5.0f) *
+          128 + std::max(noise::fbm(blockCoords * 0.05f) * 8.0f,
+                         std::powf(1.0f - std::powf(noise::fbm(blockCoords * 0.04f + 100.f), 2.0f),
+                                   5.0f) *
                              20.0f));
 
       for (int y = 1; y <= height; ++y) {
@@ -79,7 +50,7 @@ Chunk::Chunk(const ChunkCoords        chunkCoords,
   GenerateMesh();
 }
 
-int Chunk::Draw() {
+int Chunk::Draw() const {
   return mMesh.Draw();
 }
 
@@ -129,12 +100,10 @@ void Chunk::GenerateMesh() {
           const auto& dir        = Directions[d];
           const auto  otherCoord = myCoord + dir;
 
-          if (AreCoordsBounded(otherCoord)) {
-            const auto otherBlockId = blocks[CoordsToIndex(otherCoord)];
-            if (otherBlockId != BlockType::Empty) {
-              auto& otherBlockDescription = mBlockDescriptions.GetBlockDescription(otherBlockId);
-              if (otherBlockDescription.IsOpaque()) continue;
-            }
+          const auto otherBlockId = GetBlockIdAtLocalCoords(otherCoord);
+          if (otherBlockId != BlockType::Empty) {
+            auto& otherBlockDescription = mBlockDescriptions.GetBlockDescription(otherBlockId);
+            if (otherBlockDescription.IsOpaque()) continue;
           }
 
           const auto& faceData = DirectionToFace[d];
@@ -189,6 +158,20 @@ void Chunk::GenerateMesh() {
     }
   }
   mMesh.UpdateMesh(vertices, indices);
+}
+
+BlockId Chunk::GetBlockIdAtWorldCoords(glm::ivec3 coords) const {
+  return GetBlockIdAtLocalCoords(
+      {coords.x - mChunkBlockOffset.x, coords.y, coords.z - mChunkBlockOffset.z});
+}
+
+BlockId Chunk::GetBlockIdAtLocalCoords(glm::ivec3 coords) const {
+  if (AreCoordsBounded(coords)) {
+    return blocks[CoordsToIndex(coords)];
+  }
+  if (coords.y < 0 || coords.y > ChunkSize.y) return BlockType::Empty;
+  return mChunkManager.GetBlockIdAt(
+      {coords.x + mChunkBlockOffset.x, coords.y, coords.z + mChunkBlockOffset.z});
 }
 
 }  // namespace dubu::block

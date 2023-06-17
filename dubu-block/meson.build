@@ -1,5 +1,6 @@
 dubu_block = executable('dubu-block', 
   [
+    'src/game/chunk_manager.cpp',
     'src/game/chunk.cpp',
     'src/io/io.cpp',
     'src/main.cpp'

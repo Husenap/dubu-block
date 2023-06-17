@@ -40,6 +40,12 @@ public:
     Unbind();
   }
 
+  ~Mesh() {
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
+  }
+
   void UpdateMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices) {
     Bind();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -55,7 +61,7 @@ public:
     Unbind();
   }
 
-  int Draw() {
+  int Draw() const {
     Bind();
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     Unbind();
@@ -63,8 +69,8 @@ public:
   }
 
 private:
-  void Bind() { glBindVertexArray(vao); }
-  void Unbind() { glBindVertexArray(0); }
+  void Bind() const { glBindVertexArray(vao); }
+  void Unbind() const { glBindVertexArray(0); }
 
   const CreateInfo mCreateInfo;
   GLuint           vao, vbo, ebo;

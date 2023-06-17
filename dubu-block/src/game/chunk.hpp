@@ -9,29 +9,49 @@
 #include "gl/mesh.hpp"
 
 namespace dubu::block {
-using ChunkCoords = std::pair<int, int>;
-}
+struct ChunkCoords {
+  int            x;
+  int            z;
+  constexpr bool operator==(const ChunkCoords& rhs) const { return x == rhs.x && z == rhs.z; }
+};
+}  // namespace dubu::block
 
 template <>
 struct std::hash<dubu::block::ChunkCoords> {
   std::size_t operator()(const dubu::block::ChunkCoords& s) const noexcept {
-    return std::hash<long long>{}(static_cast<long long>(s.first) << 32 | s.second);
+    return std::hash<int64_t>{}(static_cast<int64_t>(s.x) << 32 | s.z);
   }
 };
 
 namespace dubu::block {
 
+class ChunkManager;
+
 class Chunk {
 public:
-  static constexpr glm::ivec3 ChunkSize{16, 384, 16};
+  static constexpr glm::ivec3 ChunkSize{16, 256, 16};
 
-  Chunk(const ChunkCoords chunkCoords, Atlas& atlas, const BlockDescriptions& blockDescriptions);
+  Chunk(const ChunkCoords        chunkCoords,
+        const ChunkManager&      chunkManager,
+        Atlas&                   atlas,
+        const BlockDescriptions& blockDescriptions);
 
-  int  Draw();
+  int  Draw() const;
   void Debug();
+
+  void Optimize() {
+    DUBU_LOG_DEBUG("Optimizing chunk at ({},{})", mChunkCoords.x, mChunkCoords.z);
+    mHasBeenOptimized = true;
+    GenerateMesh();
+  }
+  bool HasBeenOptimized() const { return mHasBeenOptimized; }
+
+  BlockId GetBlockIdAtWorldCoords(glm::ivec3 coords) const;
 
 private:
   void GenerateMesh();
+
+  BlockId GetBlockIdAtLocalCoords(glm::ivec3 coords) const;
 
   inline int CoordsToIndex(glm::ivec3 coords) const {
     assert(AreCoordsBounded(coords));
@@ -48,7 +68,7 @@ private:
            coords.z >= 0 && coords.z < ChunkSize.z;
   }
   inline bool IsEmpty(glm::ivec3 coords) const {
-    return !AreCoordsBounded(coords) || blocks[CoordsToIndex(coords)] == BlockType::Empty;
+    return GetBlockIdAtLocalCoords(coords) == BlockType::Empty;
   }
 
   struct FaceData {
@@ -153,9 +173,15 @@ private:
   }};
 
   std::array<BlockId, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
-  const BlockDescriptions&                                     mBlockDescriptions;
 
-  Mesh   mMesh;
-  Atlas& mAtlas;
+  Mesh mMesh;
+
+  const ChunkCoords        mChunkCoords;
+  const ChunkCoords        mChunkBlockOffset;
+  Atlas&                   mAtlas;
+  const BlockDescriptions& mBlockDescriptions;
+  const ChunkManager&      mChunkManager;
+
+  bool mHasBeenOptimized = false;
 };
 }  // namespace dubu::block
