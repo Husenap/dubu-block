@@ -13,12 +13,12 @@ using BlockId = uint8_t;
 class BlockDescription {
 public:
   struct CreateInfo {
-    std::vector<std::string_view> texturePaths  = {};
-    glm::vec3                     color         = {1, 1, 1};
-    int                           topTexture    = 0;
-    int                           sideTexture   = 0;
-    int                           bottomTexture = 0;
-    bool                          isOpaque      = true;
+    std::vector<const char*> texturePaths  = {};
+    glm::vec3                color         = {1, 1, 1};
+    int                      topTexture    = 0;
+    int                      sideTexture   = 0;
+    int                      bottomTexture = 0;
+    bool                     isOpaque      = true;
   };
 
   BlockDescription(const CreateInfo createInfo)
@@ -31,6 +31,7 @@ public:
   }
 
   inline std::string_view GetTexturePath(int index) const {
+    DUBU_LOG_DEBUG("Finding texture index {} in texture paths {}", index, mCreateInfo.texturePaths);
     return mCreateInfo.texturePaths[index];
   }
 
@@ -50,7 +51,8 @@ enum BlockType : BlockId {
   Stone     = 2,
   Dirt      = 3,
   Grass     = 4,
-  OakLeaves = 5,
+  OakLog    = 5,
+  OakLeaves = 6,
 };
 
 class BlockDescriptions {
@@ -66,9 +68,17 @@ public:
                     .topTexture    = 0,
                     .sideTexture   = 1,
                     .bottomTexture = 2}});
+    RegisterBlock(OakLog,
+                  {{.texturePaths  = {{
+                        "assets/textures/block/log_oak.png",
+                        "assets/textures/block/log_oak_top.png",
+                    }},
+                    .topTexture    = 1,
+                    .sideTexture   = 0,
+                    .bottomTexture = 1}});
     RegisterBlock(OakLeaves,
-                  {{.texturePaths = {{"assets/textures/block/oak_leaves.png"}},
-                    .color        = {0.1f, 1.f, 0.2f},
+                  {{.texturePaths = {{"assets/textures/block/leaves_oak.tga"}},
+                    .color        = {0.2f, 0.8f, 0.3f},
                     .isOpaque     = false}});
   }
   void RegisterBlock(BlockId id, BlockDescription description) {

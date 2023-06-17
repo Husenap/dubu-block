@@ -98,8 +98,10 @@ protected:
 
     static float previousTime = static_cast<float>(glfwGetTime());
     const float  time         = static_cast<float>(glfwGetTime());
-    // const float  deltaTime    = time - previousTime;
-    previousTime = time;
+    const float  deltaTime    = time - previousTime;
+    previousTime              = time;
+
+    cameraPosition.z += deltaTime * 5.612f;
 
     glClearColor(skyColor.r, skyColor.g, skyColor.b, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -167,7 +169,7 @@ protected:
         triangles += chunk->Draw();
         ++chunksDrawn;
 
-        if (!chunk->HasBeenOptimized()) {
+        if (!chunk->HasBeenOptimized() && d2 < mRenderDistance * mRenderDistance * 0.25f) {
           mChunkManager->LoadChunk(chunkCoords, ChunkManager::ChunkLoadingPriority::Optimize);
         }
       } else {

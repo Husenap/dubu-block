@@ -44,6 +44,25 @@ Chunk::Chunk(const ChunkCoords        chunkCoords,
           blocks[CoordsToIndex({x, y, z})] = BlockType::Grass;
         }
       }
+
+      const float f = noise::fbm(blockCoords * 0.5f);
+      if (f > 0.8f && x > 0 && x < ChunkSize.x - 1 && z > 0 && z < ChunkSize.z - 1) {
+        blocks[CoordsToIndex({x, height + 1, z})] = BlockType::OakLog;
+        blocks[CoordsToIndex({x, height + 2, z})] = BlockType::OakLog;
+        blocks[CoordsToIndex({x, height + 3, z})] = BlockType::OakLog;
+        blocks[CoordsToIndex({x, height + 4, z})] = BlockType::OakLog;
+
+        blocks[CoordsToIndex({x, height + 6, z})] = BlockType::OakLeaves;
+        for (int dx = -1; dx <= 1; ++dx) {
+          for (int dy = -1; dy <= 1; ++dy) {
+            blocks[CoordsToIndex({x + dx, height + 5, z + dy})] = BlockType::OakLeaves;
+          }
+        }
+        blocks[CoordsToIndex({x + 1, height + 4, z})] = BlockType::OakLeaves;
+        blocks[CoordsToIndex({x - 1, height + 4, z})] = BlockType::OakLeaves;
+        blocks[CoordsToIndex({x, height + 4, z + 1})] = BlockType::OakLeaves;
+        blocks[CoordsToIndex({x, height + 4, z - 1})] = BlockType::OakLeaves;
+      }
     }
   }
 
