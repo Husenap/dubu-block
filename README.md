@@ -24,9 +24,9 @@ meson install
 
 - [ ] Implement the possibility of querying a block on specific coordinates
 - [ ] Fix ambient occlusion between chunks
-- [ ] Implement a firs person avatar that can run around in the world
+- [ ] Implement a first person avatar that can run around in the world
 - [ ] Figure out a way to color leaves and grass using mask
 - [ ] Refactor code to allow more types of renderers
 - [ ] Implement a basic text renderer
 - [ ] Build a UI system?
-- [ ] Fix github language stats
+- [x] Fix github language stats
