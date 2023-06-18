@@ -1,0 +1,33 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Debug, Release]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Python Dependencies
+      run: pip install meson ninja
+
+    - name: Setup
+      run: meson setup .build
+      
+    - name: Compile
+      run: meson compile -v -C .build
+
+    - name: Test
+      run: meson test -v -C .build
