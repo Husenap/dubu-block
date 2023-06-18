@@ -107,9 +107,9 @@ protected:
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const glm::vec3 cameraLookAt =
-        cameraPosition + glm::vec3{-std::sinf(glm::radians(yaw)) * std::cosf(glm::radians(pitch)),
-                                   std::sinf(glm::radians(pitch)),
-                                   std::cosf(glm::radians(yaw)) * std::cosf(glm::radians(pitch))};
+        cameraPosition + glm::vec3{-std::sin(glm::radians(yaw)) * std::cos(glm::radians(pitch)),
+                                   std::sin(glm::radians(pitch)),
+                                   std::cos(glm::radians(yaw)) * std::cos(glm::radians(pitch))};
     const glm::mat4 view = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.0f, 1.0f, 0.0f));
     const glm::mat4 projection =
         glm::perspective(glm::radians(45.0f),

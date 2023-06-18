@@ -44,12 +44,6 @@ void ChunkManager::Update(const glm::vec3& cameraPosition) {
                            static_cast<float>(lhs.second) * 10 * 10 >
                        ChunkDistanceFromCamera(rhs.first, cameraPosition) +
                            static_cast<float>(rhs.second) * 10 * 10;
-                /*
-                if (lhs.second == rhs.second)
-                  return ChunkDistanceFromCamera(lhs.first, cameraPosition) >
-                         ChunkDistanceFromCamera(rhs.first, cameraPosition);
-                return lhs.second > rhs.second;
-                */
               });
 
     const auto& [coords, priority] = chunksToLoad.back();
@@ -79,7 +73,7 @@ BlockId ChunkManager::GetBlockIdAt(glm::ivec3 coords) const {
 }
 
 void ChunkManager::Debug() {
-  ImGui::LabelText("Chunks Loaded", "%d", chunks.size());
+  ImGui::LabelText("Chunks Loaded", "%ld", chunks.size());
 }
 
 }  // namespace dubu::block

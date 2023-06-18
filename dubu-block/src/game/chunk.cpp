@@ -32,10 +32,10 @@ Chunk::Chunk(const ChunkCoords        chunkCoords,
       const glm::vec2 blockCoords{mChunkBlockOffset.x + x, mChunkBlockOffset.z + z};
 
       const int height = static_cast<int>(
-          128 + std::max(noise::fbm(blockCoords * 0.05f) * 8.0f,
-                         std::powf(1.0f - std::powf(noise::fbm(blockCoords * 0.04f + 100.f), 2.0f),
-                                   5.0f) *
-                             20.0f));
+          128 +
+          std::max(noise::fbm(blockCoords * 0.05f) * 8.0f,
+                   std::pow(1.0f - std::pow(noise::fbm(blockCoords * 0.04f + 100.f), 2.0f), 5.0f) *
+                       20.0f));
 
       for (int y = 1; y <= height; ++y) {
         if (y < 64) {
