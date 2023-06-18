@@ -26,6 +26,7 @@ meson install
 - [ ] See if it's a good idea to replace BlockId directly with BlockType
 - [x] Fix ambient occlusion between chunks
 - [ ] Rewrite ambient occlusion to make less queries, 9 instead of 12
+- [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
 - [ ] Implement a first person avatar that can run around in the world
 - [ ] Figure out a way to color leaves and grass using mask
 - [ ] Refactor code to allow more types of renderers
