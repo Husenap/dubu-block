@@ -22,8 +22,13 @@ GLFWWindow::GLFWWindow(const CreateInfo& createInfo) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     break;
   case Api::OpenGL:
+#ifdef _WIN32
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+#else
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     break;
   }
