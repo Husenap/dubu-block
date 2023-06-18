@@ -20,17 +20,21 @@ meson install
 ./dubu-block/dubu-block
 ```
 
-### Todo
+### Todo-list
 
-- [x] Implement the possibility of querying a block on specific coordinates
+#### Todo
 - [ ] See if it's a good idea to replace BlockId directly with BlockType
-- [x] Fix ambient occlusion between chunks
-- [ ] Rewrite ambient occlusion to make less queries, 9 instead of 12
+- [ ] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
 - [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
+- [ ] Implement a basic input system (make sure it gives ImGui precedence)
 - [ ] Implement a first person avatar that can run around in the world
-- [ ] Figure out a way to color leaves and grass using mask
-- [ ] Refactor code to allow more types of renderers
-- [ ] Implement a basic text renderer
+- [ ] Figure out a way to color leaves and grass using mask (how to differentiate between transparency and color masking?)
+- [ ] Refactor code to allow more types of renderers (add deferred renderer?)
+- [ ] Implement a basic text renderer (SDF vs simple bitmap font?)
 - [ ] Build a UI system?
 - [ ] Figure out how to add imgui docking branch to meson
+
+#### Done
+- [x] Implement the possibility of querying a block on specific coordinates
+- [x] Fix ambient occlusion between chunks
 - [x] Fix github language stats
