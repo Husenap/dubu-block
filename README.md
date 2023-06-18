@@ -23,6 +23,7 @@ meson install
 ### Todo-list
 
 #### Todo
+- [ ] Add CI
 - [ ] See if it's a good idea to replace BlockId directly with BlockType
 - [ ] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
 - [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
@@ -33,6 +34,8 @@ meson install
 - [ ] Implement a basic text renderer (SDF vs simple bitmap font?)
 - [ ] Build a UI system?
 - [ ] Figure out how to add imgui docking branch to meson
+- [ ] Add Biomes
+- [ ] Figure out how to generically implement liquids such as water and java
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
