@@ -1,5 +1,7 @@
 #include "chunk.hpp"
 
+#include <cmath>
+
 #include <dubu_log/dubu_log.h>
 #include <glm/gtc/random.hpp>
 #include <imgui.h>
