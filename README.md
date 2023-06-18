@@ -23,7 +23,6 @@ meson install
 ### Todo-list
 
 #### Todo
-- [ ] Add CI
 - [ ] See if it's a good idea to replace BlockId directly with BlockType
 - [ ] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
 - [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
