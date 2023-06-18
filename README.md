@@ -36,6 +36,10 @@ meson install
 - [ ] Figure out how to add imgui docking branch to meson
 - [ ] Add Biomes
 - [ ] Figure out how to generically implement liquids such as water and java
+- [ ] Add a atmospheric scattering shader
+- [ ] Serialize chunks to disk
+- [ ] Figure out how to add seeding
+- [ ] Add support for different world saves on disk
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
