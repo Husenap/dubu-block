@@ -8,11 +8,14 @@ project('dubu-block', 'c', 'cpp',
 )
 
 glfw_dep = declare_dependency(
-  dependencies : [dependency('glfw3')],
+  dependencies: [dependency('glfw3')],
   compile_args: '-DGLFW_INCLUDE_NONE=1'
 )
 glm_dep = dependency('glm')
-imgui_dep = dependency('imgui')
+imgui_dep = declare_dependency(
+  dependencies: [dependency('imgui')],
+  compile_args: '-DGLFW_INCLUDE_NONE=1'
+)
 
 subdir('lib')
 subdir('dubu-block')
