@@ -8,12 +8,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        build_type: [Debug, Release]
+        build_type: [debug, release]
     
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Install
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libwayland-dev
 
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -24,7 +28,10 @@ jobs:
       run: pip install meson ninja
 
     - name: Setup
-      run: meson setup .build
+      run: |
+        meson setup .build
+        cd .build/
+        meson configure --buildtype=${{ matrix.build_type }}
       
     - name: Compile
       run: meson compile -v -C .build
