@@ -20,6 +20,10 @@ meson install
 ./dubu-block/dubu-block
 ```
 
+### Screenshots
+
+![](screenshots/screenshot.png)
+
 ### Todo-list
 
 #### Todo
