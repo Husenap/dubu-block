@@ -37,7 +37,7 @@ meson install
 - [ ] Implement a basic text renderer (SDF vs simple bitmap font?)
 - [ ] Build a UI system?
 - [ ] Add Biomes
-- [ ] Figure out how to generically implement liquids such as water and java
+- [ ] Figure out how to generically implement liquids such as water and lava
 - [ ] Add a atmospheric scattering shader
 - [ ] Serialize chunks to disk
 - [ ] Figure out how to add seeding
