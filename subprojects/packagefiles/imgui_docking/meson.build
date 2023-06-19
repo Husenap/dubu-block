@@ -107,7 +107,7 @@ endif
 imgui = library(
   'imgui',
   sources,
-  cpp_args: api,
+  cpp_args: [api, '-DGLFW_INCLUDE_NONE=1'],
   gnu_symbol_visibility: 'hidden',
   dependencies: dependencies,
   include_directories: include_dirs,
