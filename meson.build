@@ -8,6 +8,9 @@ project('dubu-block', 'c', 'cpp',
   ],
 )
 
+glad_dep = subproject('glad').get_variable('glad_dep')
+stb_dep = subproject('stb').get_variable('stb_dep')
+
 glfw_dep = dependency('glfw3')
 glm_dep = dependency('glm')
 imgui_dep = dependency('imgui')
