@@ -19,6 +19,8 @@ void AppBase::Run() {
 
   Init();
 
+  ImGuiIO& io = ImGui::GetIO();
+
   while (!mWindow->ShouldClose()) {
     mWindow->PollEvents();
 
@@ -32,6 +34,13 @@ void AppBase::Run() {
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+      GLFWwindow* backup_current_context = glfwGetCurrentContext();
+      ImGui::UpdatePlatformWindows();
+      ImGui::RenderPlatformWindowsDefault();
+      glfwMakeContextCurrent(backup_current_context);
+    }
 
     mWindow->SwapBuffers();
   }
@@ -69,6 +78,10 @@ void AppBase::InitImGui() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
+  ImGuiIO& io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
   ImGui_ImplGlfw_InitForOpenGL(mWindow->GetGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 130");
 
@@ -102,7 +115,7 @@ void AppBase::InitImGui() {
   colors[ImGuiCol_Header]                = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
   colors[ImGuiCol_HeaderHovered]         = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
   colors[ImGuiCol_HeaderActive]          = ImVec4(0.76f, 0.76f, 0.76f, 0.77f);
-  colors[ImGuiCol_Separator]             = ImVec4(0.00f, 0.00f, 0.00f, 0.14f);
+  colors[ImGuiCol_Separator]             = ImVec4(0.37f, 0.37f, 0.37f, 1.00f);
   colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.70f, 0.67f, 0.60f, 0.29f);
   colors[ImGuiCol_SeparatorActive]       = ImVec4(0.70f, 0.67f, 0.60f, 0.67f);
   colors[ImGuiCol_ResizeGrip]            = ImVec4(0.99f, 0.78f, 0.61f, 1.00f);
@@ -113,6 +126,8 @@ void AppBase::InitImGui() {
   colors[ImGuiCol_TabActive]             = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
   colors[ImGuiCol_TabUnfocused]          = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
   colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
+  colors[ImGuiCol_DockingPreview]        = ImVec4(1.00f, 0.37f, 0.64f, 1.00f);
+  colors[ImGuiCol_DockingEmptyBg]        = ImVec4(0.75f, 0.28f, 0.47f, 1.00f);
   colors[ImGuiCol_PlotLines]             = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
   colors[ImGuiCol_PlotLinesHovered]      = ImVec4(1.00f, 0.72f, 0.30f, 1.00f);
   colors[ImGuiCol_PlotHistogram]         = ImVec4(0.68f, 0.84f, 0.51f, 1.00f);

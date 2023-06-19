@@ -36,7 +36,6 @@ meson install
 - [ ] Refactor code to allow more types of renderers (add deferred renderer?)
 - [ ] Implement a basic text renderer (SDF vs simple bitmap font?)
 - [ ] Build a UI system?
-- [ ] Figure out how to add imgui docking branch to meson
 - [ ] Add Biomes
 - [ ] Figure out how to generically implement liquids such as water and java
 - [ ] Add a atmospheric scattering shader
@@ -48,3 +47,4 @@ meson install
 - [x] Implement the possibility of querying a block on specific coordinates
 - [x] Fix ambient occlusion between chunks
 - [x] Fix github language stats
+- [x] Figure out how to add imgui docking branch to meson
