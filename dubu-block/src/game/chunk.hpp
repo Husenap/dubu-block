@@ -58,7 +58,7 @@ private:
     return coords.x + coords.y * ChunkSize.x + coords.z * ChunkSize.x * ChunkSize.y;
   }
   inline glm::ivec3 IndexToCoords(int index) const {
-    assert(index >= 0 && index < blocks.size());
+    assert(index >= 0 && index < static_cast<int>(blocks.size()));
     return {index % ChunkSize.x,
             (index / ChunkSize.x) % ChunkSize.y,
             (index / (ChunkSize.x * ChunkSize.y))};
@@ -174,13 +174,14 @@ private:
 
   std::array<BlockId, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
 
+  const ChunkCoords mChunkCoords;
+  const ChunkCoords mChunkBlockOffset;
+
   Mesh mMesh;
 
-  const ChunkCoords        mChunkCoords;
-  const ChunkCoords        mChunkBlockOffset;
+  const ChunkManager&      mChunkManager;
   Atlas&                   mAtlas;
   const BlockDescriptions& mBlockDescriptions;
-  const ChunkManager&      mChunkManager;
 
   bool mHasBeenOptimized = false;
 };

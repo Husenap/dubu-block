@@ -117,7 +117,7 @@ void Chunk::GenerateMesh() {
 
         if (blockId == BlockType::Empty) continue;
 
-        for (int d = 0; d < Directions.size(); ++d) {
+        for (std::size_t d = 0; d < Directions.size(); ++d) {
           const auto& dir        = Directions[d];
           const auto  otherCoord = myCoord + dir;
 

@@ -41,8 +41,8 @@ private:
   std::vector<std::pair<ChunkCoords, ChunkLoadingPriority>> chunksToLoad;
   std::unordered_set<ChunkCoords>                           queued;
 
-  const BlockDescriptions& mBlockDescriptions;
   Atlas&                   mAtlas;
+  const BlockDescriptions& mBlockDescriptions;
 };
 
 }  // namespace dubu::block

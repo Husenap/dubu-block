@@ -128,7 +128,7 @@ protected:
     Frustum frustum(glm::inverse(viewProjection));
 
     atlas->Bind(GL_TEXTURE0);
-    for (const auto [i, j] : chunkIndexTable) {
+    for (const auto& [i, j] : chunkIndexTable) {
       const int x = static_cast<int>(std::roundf(cameraPosition.x / Chunk::ChunkSize.x)) + i;
       const int z = static_cast<int>(std::roundf(cameraPosition.z / Chunk::ChunkSize.z)) + j;
 
