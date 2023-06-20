@@ -42,6 +42,7 @@ meson install
 - [ ] Serialize chunks to disk
 - [ ] Figure out how to add seeding
 - [ ] Add support for different world saves on disk
+- [ ] Store imgui.ini out of source
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
