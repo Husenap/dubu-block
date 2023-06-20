@@ -6,6 +6,7 @@ uniform sampler2D atlas;
 
 in vec3 color;
 in vec2 uv0;
+in float ao;
 
 in vec4 fogColor;
 
@@ -19,6 +20,8 @@ void main(){
   vec3 diffuse = texel.rgb;
 
   diffuse *= color;
+
+  diffuse *= ao;
 
   diffuse = mix(diffuse, fogColor.rgb, fogColor.a);
 

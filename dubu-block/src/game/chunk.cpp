@@ -131,41 +131,48 @@ void Chunk::GenerateMesh() {
 
           const glm::vec3 offsetPosition = myCoord;
           const auto [uvPos0, uvSize0]   = mAtlas.GetUVs(blockId, dir);
-          const glm::vec3        color = mBlockDescriptions.GetBlockDescription(blockId).GetColor();
-          static constexpr float ao    = 0.25f;
+          const glm::vec3 color = mBlockDescriptions.GetBlockDescription(blockId).GetColor();
 
-          vertices.push_back(
-              {faceData.vertices[0] + offsetPosition,
-               color * (1.0f + std::max(-2,
-                                        (-3 + IsEmpty(myCoord + faceData.aoNeighbours[0][0]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[0][1]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[0][2]))) *
-                                   ao),
-               uvPos0 + uvSize0 * glm::vec2{0, 1}});
-          vertices.push_back(
-              {faceData.vertices[1] + offsetPosition,
-               color * (1.0f + std::max(-2,
-                                        (-3 + IsEmpty(myCoord + faceData.aoNeighbours[1][0]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[1][1]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[1][2]))) *
-                                   ao),
-               uvPos0 + uvSize0 * glm::vec2{1, 1}});
-          vertices.push_back(
-              {faceData.vertices[2] + offsetPosition,
-               color * (1.0f + std::max(-2,
-                                        (-3 + IsEmpty(myCoord + faceData.aoNeighbours[2][0]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[2][1]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[2][2]))) *
-                                   ao),
-               uvPos0 + uvSize0 * glm::vec2{1, 0}});
-          vertices.push_back(
-              {faceData.vertices[3] + offsetPosition,
-               color * (1.0f + std::max(-2,
-                                        (-3 + IsEmpty(myCoord + faceData.aoNeighbours[3][0]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[3][1]) +
-                                         IsEmpty(myCoord + faceData.aoNeighbours[3][2]))) *
-                                   ao),
-               uvPos0 + uvSize0 * glm::vec2{0, 0}});
+          static constexpr float aoStrength = 0.2f;
+
+          float ao0 = 1.0f;
+          float ao1 = 1.0f;
+          float ao2 = 1.0f;
+          float ao3 = 1.0f;
+
+          if (otherBlockId != BlockType::Empty) {
+            ao0 = ao1 = ao2 = ao3 = 1.0f - 3.0f * aoStrength;
+          } else {
+            const bool n0 = IsEmpty(myCoord + faceData.aoNeighbours[0]);
+            const bool n1 = IsEmpty(myCoord + faceData.aoNeighbours[1]);
+            const bool n2 = IsEmpty(myCoord + faceData.aoNeighbours[2]);
+            const bool n3 = IsEmpty(myCoord + faceData.aoNeighbours[3]);
+            const bool n4 = IsEmpty(myCoord + faceData.aoNeighbours[4]);
+            const bool n5 = IsEmpty(myCoord + faceData.aoNeighbours[5]);
+            const bool n6 = IsEmpty(myCoord + faceData.aoNeighbours[6]);
+            const bool n7 = IsEmpty(myCoord + faceData.aoNeighbours[7]);
+            ao0 += (n0 + n1 + n2 - 3) * aoStrength;
+            ao1 += (n2 + n3 + n4 - 3) * aoStrength;
+            ao2 += (n4 + n5 + n6 - 3) * aoStrength;
+            ao3 += (n6 + n7 + n0 - 3) * aoStrength;
+          }
+
+          vertices.push_back({.position = faceData.vertices[0] + offsetPosition,
+                              .color    = color,
+                              .uv0      = uvPos0 + uvSize0 * glm::vec2{0, 1},
+                              .ao       = ao0});
+          vertices.push_back({.position = faceData.vertices[1] + offsetPosition,
+                              .color    = color,
+                              .uv0      = uvPos0 + uvSize0 * glm::vec2{1, 1},
+                              .ao       = ao1});
+          vertices.push_back({.position = faceData.vertices[2] + offsetPosition,
+                              .color    = color,
+                              .uv0      = uvPos0 + uvSize0 * glm::vec2{1, 0},
+                              .ao       = ao2});
+          vertices.push_back({.position = faceData.vertices[3] + offsetPosition,
+                              .color    = color,
+                              .uv0      = uvPos0 + uvSize0 * glm::vec2{0, 0},
+                              .ao       = ao3});
 
           const unsigned int startIndex = static_cast<unsigned int>(vertices.size()) - 4;
           indices.push_back(startIndex + faceData.indices[0]);

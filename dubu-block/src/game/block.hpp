@@ -15,22 +15,22 @@ public:
   struct CreateInfo {
     std::vector<const char*> texturePaths  = {};
     glm::vec3                color         = {1, 1, 1};
-    int                      topTexture    = 0;
-    int                      sideTexture   = 0;
-    int                      bottomTexture = 0;
+    uint8_t                  topTexture    = 0;
+    uint8_t                  sideTexture   = 0;
+    uint8_t                  bottomTexture = 0;
     bool                     isOpaque      = true;
   };
 
   BlockDescription(const CreateInfo createInfo)
       : mCreateInfo(createInfo) {}
 
-  int GetTextureIndexFromDirection(glm::vec3 direction) const {
+  uint8_t GetTextureIndexFromDirection(glm::vec3 direction) const {
     if (direction.y > 0.5f) return mCreateInfo.topTexture;
     if (direction.y < -0.5f) return mCreateInfo.bottomTexture;
     return mCreateInfo.sideTexture;
   }
 
-  inline std::string_view GetTexturePath(int index) const {
+  inline std::string_view GetTexturePath(uint8_t index) const {
     DUBU_LOG_DEBUG("Finding texture index {} in texture paths {}", index, mCreateInfo.texturePaths);
     return mCreateInfo.texturePaths[index];
   }

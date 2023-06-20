@@ -3,6 +3,7 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aUV0;
+layout (location = 3) in float aAO;
 
 uniform mat4 MODELVIEWPROJ;
 uniform mat4 MODEL;
@@ -14,15 +15,18 @@ uniform vec2 FOG_CONTROL;
 
 out vec3 color;
 out vec2 uv0;
+out float ao;
 
 out vec4 fogColor;
 
 void main(){
   gl_Position = MODELVIEWPROJ * vec4(aPos, 1.0);
+
   color = aColor;
   uv0 = aUV0;
+  ao = aAO;
 
-  vec4 worldPos = MODELVIEW * vec4(aPos,1.0);
+  vec4 worldPos = MODELVIEW * vec4(aPos, 1.0);
   float cameraDepth = length(worldPos.xyz);
   float len = cameraDepth / RENDER_DISTANCE;
   fogColor.rgb = SKYCOLOR;

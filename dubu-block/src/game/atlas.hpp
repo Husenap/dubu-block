@@ -33,8 +33,8 @@ public:
   ~Atlas() { glDeleteTextures(1, &mTexture); }
 
   std::pair<glm::vec2, glm::vec2> GetUVs(BlockId id, glm::vec3 direction) {
-    auto&     block        = mBlockDescriptions.GetBlockDescription(id);
-    const int textureIndex = block.GetTextureIndexFromDirection(direction);
+    auto&      block        = mBlockDescriptions.GetBlockDescription(id);
+    const auto textureIndex = block.GetTextureIndexFromDirection(direction);
 
     const auto key = std::make_pair(id, textureIndex);
 
@@ -94,8 +94,8 @@ public:
   }
 
 private:
-  dubu::rect_pack::Packer                                            mPacker;
-  std::map<std::pair<BlockId, int>, std::pair<glm::vec2, glm::vec2>> mIdToUV;
+  dubu::rect_pack::Packer                                                mPacker;
+  std::map<std::pair<BlockId, uint8_t>, std::pair<glm::vec2, glm::vec2>> mIdToUV;
 
   GLuint mTexture;
 

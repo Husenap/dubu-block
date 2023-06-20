@@ -15,6 +15,7 @@ public:
     glm::vec3 position;
     glm::vec3 color;
     glm::vec2 uv0;
+    float     ao;
   };
 
   Mesh(const CreateInfo createInfo)
@@ -37,6 +38,9 @@ public:
 
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv0));
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, ao));
     Unbind();
   }
 

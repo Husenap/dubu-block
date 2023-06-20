@@ -28,7 +28,6 @@ meson install
 
 #### Todo
 - [ ] See if it's a good idea to replace BlockId directly with BlockType
-- [ ] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
 - [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
 - [ ] Implement a basic input system (make sure it gives ImGui precedence)
 - [ ] Implement a first person avatar that can run around in the world
@@ -43,9 +42,11 @@ meson install
 - [ ] Figure out how to add seeding
 - [ ] Add support for different world saves on disk
 - [ ] Store imgui.ini out of source
+- [ ] Add foliage
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
 - [x] Fix ambient occlusion between chunks
 - [x] Fix github language stats
 - [x] Figure out how to add imgui docking branch to meson
+- [x] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
