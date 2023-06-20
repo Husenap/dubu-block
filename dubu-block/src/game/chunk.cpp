@@ -75,30 +75,6 @@ int Chunk::Draw() const {
   return mMesh.Draw();
 }
 
-void Chunk::Debug() {
-  bool edited = false;
-  for (int y = ChunkSize.y - 1; y >= 0; --y) {
-    ImGui::Text("Layer: %d", y);
-    ImGui::PushID(y);
-    if (ImGui::BeginTable("ChunkTable", ChunkSize.x)) {
-      for (int z = 0; z < ChunkSize.z; ++z) {
-        ImGui::PushID(z);
-        ImGui::TableNextRow();
-        for (int x = 0; x < ChunkSize.x; ++x) {
-          ImGui::TableSetColumnIndex(x);
-          ImGui::PushID(x);
-          edited |= ImGui::Checkbox("", (bool*)&blocks[CoordsToIndex({x, y, z})]);
-          ImGui::PopID();
-        }
-        ImGui::PopID();
-      }
-      ImGui::EndTable();
-    }
-    ImGui::PopID();
-  }
-  if (edited) GenerateMesh();
-}
-
 void Chunk::GenerateMesh() {
   Timer timer("Chunk::GenerateMesh");
 

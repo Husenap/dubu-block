@@ -36,8 +36,7 @@ public:
         Atlas&                   atlas,
         const BlockDescriptions& blockDescriptions);
 
-  int  Draw() const;
-  void Debug();
+  int Draw() const;
 
   void Optimize() {
     DUBU_LOG_DEBUG("Optimizing chunk at ({},{})", mChunkCoords.x, mChunkCoords.z);
