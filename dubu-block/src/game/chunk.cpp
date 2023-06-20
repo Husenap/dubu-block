@@ -14,7 +14,8 @@ namespace dubu::block {
 Chunk::Chunk(const ChunkCoords        chunkCoords,
              const ChunkManager&      chunkManager,
              Atlas&                   atlas,
-             const BlockDescriptions& blockDescriptions)
+             const BlockDescriptions& blockDescriptions,
+             const Seed&              seed)
     : mChunkCoords(chunkCoords)
     , mChunkBlockOffset({chunkCoords.x * Chunk::ChunkSize.x, chunkCoords.z * Chunk::ChunkSize.z})
     , mMesh({.usage = GL_DYNAMIC_DRAW})
@@ -29,11 +30,7 @@ Chunk::Chunk(const ChunkCoords        chunkCoords,
 
       const glm::vec2 blockCoords{mChunkBlockOffset.x + x, mChunkBlockOffset.z + z};
 
-      const int height = static_cast<int>(
-          128 +
-          std::max(noise::fbm(blockCoords * 0.05f) * 8.0f,
-                   std::pow(1.0f - std::pow(noise::fbm(blockCoords * 0.04f + 100.f), 2.0f), 5.0f) *
-                       20.0f));
+      const int height = static_cast<int>(100 + 20 * seed.Continentalness(blockCoords));
 
       for (int y = 1; y <= height; ++y) {
         if (y < 64) {

@@ -2,6 +2,7 @@ dubu_block = executable('dubu-block',
   [
     'src/game/chunk_manager.cpp',
     'src/game/chunk.cpp',
+    'src/imgui/imgui_curve.cpp',
     'src/io/io.cpp',
     'src/main.cpp'
   ],

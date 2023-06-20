@@ -14,17 +14,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
 #include <stb/stb_image.h>
 
 #include "game/atlas.hpp"
 #include "game/block.hpp"
 #include "game/chunk.hpp"
 #include "game/chunk_manager.hpp"
+#include "generator/seed.hpp"
 #include "gl/debug_drawer.hpp"
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
 #include "gl/texture.hpp"
+#include "imgui/dock_space.hpp"
 #include "io/io.hpp"
 #include "linalg/frustum.hpp"
 
@@ -41,9 +42,9 @@ public:
 protected:
   virtual void Init() override {
     mResizeToken = mWindow->RegisterListener<dubu::window::EventResize>([&](const auto& e) {
-      width  = e.width;
-      height = e.height;
-      DUBU_LOG_DEBUG("Window resized: ({}, {})", width, height);
+      mWidth  = e.width;
+      mHeight = e.height;
+      DUBU_LOG_DEBUG("Window resized: ({}, {})", mWidth, mHeight);
     });
 
     mDebugDrawer = std::make_unique<DebugDrawer>();
@@ -55,46 +56,46 @@ protected:
 
     VertexShader   vertexShader(dubu::block::ReadFile("assets/shaders/chunk.vert"));
     FragmentShader fragmentShader(dubu::block::ReadFile("assets/shaders/chunk.frag"));
-    chunkProgram.Link(vertexShader, fragmentShader);
-    if (const auto err = chunkProgram.GetError()) {
+    mChunkProgram.Link(vertexShader, fragmentShader);
+    if (const auto err = mChunkProgram.GetError()) {
       DUBU_LOG_ERROR("shader program error: {}", *err);
     }
 
-    atlas = std::make_unique<Atlas>(blockDescriptions);
+    mAtlas = std::make_unique<Atlas>(mBlockDescriptions);
 
-    mChunkManager = std::make_unique<ChunkManager>(*atlas, blockDescriptions);
+    mChunkManager = std::make_unique<ChunkManager>(*mAtlas, mBlockDescriptions, mSeed);
 
     CalculateChunkIndexTable();
   }
 
   void CalculateChunkIndexTable() {
-    chunkIndexTable.clear();
+    mChunkIndexTable.clear();
 
-    chunkIndexTable.push_back({0, 0});
+    mChunkIndexTable.push_back({0, 0});
     for (int d = 1; d <= mRenderDistance; ++d) {
       for (int x = -d; x <= d; ++x) {
         int z = d;
-        chunkIndexTable.push_back({x, z});
+        mChunkIndexTable.push_back({x, z});
       }
       for (int z = d; z >= -d; --z) {
         int x = d;
-        chunkIndexTable.push_back({x, z});
+        mChunkIndexTable.push_back({x, z});
       }
       for (int x = d; x >= -d; --x) {
         int z = -d;
-        chunkIndexTable.push_back({x, z});
+        mChunkIndexTable.push_back({x, z});
       }
       for (int z = -d; z < d; ++z) {
         int x = -d;
-        chunkIndexTable.push_back({x, z});
+        mChunkIndexTable.push_back({x, z});
       }
     }
   }
 
   virtual void Update() override {
-    mChunkManager->Update(cameraPosition);
+    mChunkManager->Update(mCameraPosition);
 
-    if (width <= 0 || height <= 0) return;
+    if (mWidth <= 0 || mHeight <= 0) return;
 
     DrawDockSpace();
 
@@ -103,19 +104,19 @@ protected:
     const float  deltaTime    = time - previousTime;
     previousTime              = time;
 
-    cameraPosition.z += deltaTime * 5.612f;
+    // mCameraPosition.z += deltaTime * 5.612f;
 
-    glClearColor(skyColor.r, skyColor.g, skyColor.b, 1.f);
+    glClearColor(mSkyColor.r, mSkyColor.g, mSkyColor.b, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const glm::vec3 cameraLookAt =
-        cameraPosition + glm::vec3{-std::sin(glm::radians(yaw)) * std::cos(glm::radians(pitch)),
-                                   std::sin(glm::radians(pitch)),
-                                   std::cos(glm::radians(yaw)) * std::cos(glm::radians(pitch))};
-    const glm::mat4 view = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.0f, 1.0f, 0.0f));
+        mCameraPosition + glm::vec3{-std::sin(glm::radians(mYaw)) * std::cos(glm::radians(mPitch)),
+                                    std::sin(glm::radians(mPitch)),
+                                    std::cos(glm::radians(mYaw)) * std::cos(glm::radians(mPitch))};
+    const glm::mat4 view = glm::lookAt(mCameraPosition, cameraLookAt, glm::vec3(0.0f, 1.0f, 0.0f));
     const glm::mat4 projection =
         glm::perspective(glm::radians(45.0f),
-                         static_cast<float>(width) / height,
+                         static_cast<float>(mWidth) / mHeight,
                          0.1f,
                          static_cast<float>((mRenderDistance + 1) * Chunk::ChunkSize.z));
     const glm::mat4 viewProjection = projection * view;
@@ -127,13 +128,13 @@ protected:
 
     Frustum frustum(glm::inverse(viewProjection));
 
-    atlas->Bind(GL_TEXTURE0);
-    for (const auto& [i, j] : chunkIndexTable) {
-      const int x = static_cast<int>(std::roundf(cameraPosition.x / Chunk::ChunkSize.x)) + i;
-      const int z = static_cast<int>(std::roundf(cameraPosition.z / Chunk::ChunkSize.z)) + j;
+    mAtlas->Bind(GL_TEXTURE0);
+    for (const auto& [i, j] : mChunkIndexTable) {
+      const int x = static_cast<int>(std::roundf(mCameraPosition.x / Chunk::ChunkSize.x)) + i;
+      const int z = static_cast<int>(std::roundf(mCameraPosition.z / Chunk::ChunkSize.z)) + j;
 
-      const float dx = (x + 0.5f) - cameraPosition.x / (float)(Chunk::ChunkSize.x);
-      const float dz = (z + 0.5f) - cameraPosition.z / (float)(Chunk::ChunkSize.z);
+      const float dx = (x + 0.5f) - mCameraPosition.x / (float)(Chunk::ChunkSize.x);
+      const float dz = (z + 0.5f) - mCameraPosition.z / (float)(Chunk::ChunkSize.z);
       const float d2 = dx * dx + dz * dz;
       if (d2 > mRenderDistance * mRenderDistance) continue;
 
@@ -152,21 +153,22 @@ protected:
             glm::translate(model, glm::vec3(x * Chunk::ChunkSize.x, 0, z * Chunk::ChunkSize.z));
         const glm::mat4 mvp = viewProjection * chunkModel;
 
-        chunkProgram.Use();
+        mChunkProgram.Use();
         glUniformMatrix4fv(
-            chunkProgram.GetUniformLocation("MODELVIEWPROJ"), 1, GL_FALSE, glm::value_ptr(mvp));
+            mChunkProgram.GetUniformLocation("MODELVIEWPROJ"), 1, GL_FALSE, glm::value_ptr(mvp));
         glUniformMatrix4fv(
-            chunkProgram.GetUniformLocation("MODEL"), 1, GL_FALSE, glm::value_ptr(chunkModel));
-        glUniformMatrix4fv(chunkProgram.GetUniformLocation("MODELVIEW"),
+            mChunkProgram.GetUniformLocation("MODEL"), 1, GL_FALSE, glm::value_ptr(chunkModel));
+        glUniformMatrix4fv(mChunkProgram.GetUniformLocation("MODELVIEW"),
                            1,
                            GL_FALSE,
                            glm::value_ptr(view * chunkModel));
         glUniformMatrix4fv(
-            chunkProgram.GetUniformLocation("PROJ"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform3fv(chunkProgram.GetUniformLocation("SKYCOLOR"), 1, glm::value_ptr(skyColor));
-        glUniform1f(chunkProgram.GetUniformLocation("RENDER_DISTANCE"),
+            mChunkProgram.GetUniformLocation("PROJ"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform3fv(mChunkProgram.GetUniformLocation("SKYCOLOR"), 1, glm::value_ptr(mSkyColor));
+        glUniform1f(mChunkProgram.GetUniformLocation("RENDER_DISTANCE"),
                     static_cast<float>(mRenderDistance * Chunk::ChunkSize.z));
-        glUniform2fv(chunkProgram.GetUniformLocation("FOG_CONTROL"), 1, glm::value_ptr(fogControl));
+        glUniform2fv(
+            mChunkProgram.GetUniformLocation("FOG_CONTROL"), 1, glm::value_ptr(mFogControl));
 
         triangles += chunk->Draw();
         ++chunksDrawn;
@@ -182,37 +184,41 @@ protected:
     mDebugDrawer->Draw(viewProjection);
 
     if (ImGui::Begin("Debug")) {
-      static bool wireframe = false;
-      if (ImGui::Checkbox("Wireframe", &wireframe)) {
-        glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+      if (ImGui::CollapsingHeader("Render Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+        static bool wireframe = false;
+        if (ImGui::Checkbox("Wireframe", &wireframe)) {
+          glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+        }
+        ImGui::ColorEdit3("Sky Color", glm::value_ptr(mSkyColor));
+        ImGui::DragFloat2("Fog Control", glm::value_ptr(mFogControl));
+        if (ImGui::DragInt("Render Distance", &mRenderDistance, 1, 5, 35))
+          CalculateChunkIndexTable();
       }
-      ImGui::Separator();
-      ImGui::ColorEdit3("Sky Color", glm::value_ptr(skyColor));
-      ImGui::DragFloat2("Fog Control", glm::value_ptr(fogControl));
-      if (ImGui::DragInt("Render Distance", &mRenderDistance, 1, 5, 35)) CalculateChunkIndexTable();
-      ImGui::Separator();
 
-      ImGui::DragFloat3("Camera Position", glm::value_ptr(cameraPosition));
-      ImGui::DragFloat("Pitch", &pitch, 0.1f, -89.9f, 89.9f);
-      ImGui::DragFloat("Yaw", &yaw, 0.1f);
+      if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::DragFloat3("Camera Position", glm::value_ptr(mCameraPosition));
+        ImGui::DragFloat("Pitch", &mPitch, 0.1f, -89.9f, 89.9f);
+        ImGui::DragFloat("Yaw", &mYaw, 0.1f);
+      }
 
-      ImGui::Separator();
+      if (ImGui::CollapsingHeader("Chunks")) {
+        mChunkManager->Debug();
+        ImGui::LabelText("Chunks Drawn", "%d", chunksDrawn);
+        ImGui::LabelText("Chunks Culled", "%d", chunksCulled);
+        ImGui::LabelText("Triangles Drawn", "%d", triangles);
+      }
 
-      frustum.Debug();
+      if (ImGui::CollapsingHeader("Textures")) {
+        static float bias = 0.f;
+        ImGui::DragFloat("LOD Bias", &bias);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, bias);
 
-      ImGui::Separator();
+        mAtlas->Debug();
+      }
 
-      mChunkManager->Debug();
-      ImGui::LabelText("Chunks Drawn", "%d", chunksDrawn);
-      ImGui::LabelText("Chunks Culled", "%d", chunksCulled);
-      ImGui::LabelText("Triangles Drawn", "%d", triangles);
-
-      ImGui::Separator();
-      static float bias = 0.f;
-      ImGui::DragFloat("LOD Bias", &bias);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, bias);
-
-      atlas->Debug();
+      if (ImGui::CollapsingHeader("Generator", ImGuiTreeNodeFlags_DefaultOpen)) {
+        mSeed.Debug();
+      }
     }
     ImGui::End();
 
@@ -221,52 +227,31 @@ protected:
   }
 
 private:
-  void DrawDockSpace() {
-    static constexpr ImGuiWindowFlags dockSpaceWindowFlags =
-        ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
-    ImGui::SetNextWindowViewport(viewport->ID);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, {0, 0, 0, 0});
-    ImGui::Begin("#DOCK_SPACE", nullptr, dockSpaceWindowFlags);
-
-    ImGui::DockSpace(
-        ImGui::GetID("DOCK_SPACE_WINDOW"), {0.f, 0.f}, ImGuiDockNodeFlags_PassthruCentralNode);
-    ImGui::End();
-    ImGui::PopStyleColor(1);
-    ImGui::PopStyleVar(3);
-  }
-
   dubu::event::Token mResizeToken;
 
-  int width  = 1920;
-  int height = 1080;
+  int mWidth  = 1920;
+  int mHeight = 1080;
 
   int mRenderDistance = 10;
 
-  ShaderProgram                    chunkProgram;
-  std::vector<std::pair<int, int>> chunkIndexTable;
+  ShaderProgram                    mChunkProgram;
+  std::vector<std::pair<int, int>> mChunkIndexTable;
 
   std::unique_ptr<ChunkManager> mChunkManager;
 
-  std::unique_ptr<Atlas> atlas;
-  BlockDescriptions      blockDescriptions;
+  std::unique_ptr<Atlas> mAtlas;
+  BlockDescriptions      mBlockDescriptions;
 
-  glm::vec3 cameraPosition{-8, 167, 25};
-  float     pitch = -22;
-  float     yaw   = -2.7f;
+  glm::vec3 mCameraPosition{-8, 167, 25};
+  float     mPitch = -22;
+  float     mYaw   = -2.7f;
 
-  glm::vec3 skyColor{0.45f, 0.76f, 1.0f};
-  glm::vec2 fogControl{2.f, 250000.f};
+  glm::vec3 mSkyColor{0.45f, 0.76f, 1.0f};
+  glm::vec2 mFogControl{2.f, 250000.f};
 
   std::unique_ptr<DebugDrawer> mDebugDrawer;
+
+  Seed mSeed{1337};
 };
 }  // namespace dubu::block
 

@@ -6,6 +6,7 @@
 #include <unordered_set>
 
 #include "chunk.hpp"
+#include "generator/seed.hpp"
 
 namespace dubu::block {
 
@@ -13,7 +14,7 @@ class ChunkManager {
 public:
   enum class ChunkLoadingPriority { Update, Generate, Optimize };
 
-  ChunkManager(Atlas& atlas, const BlockDescriptions& blockDescriptions);
+  ChunkManager(Atlas& atlas, const BlockDescriptions& blockDescriptions, const Seed& seed);
 
   void LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriority priority);
 
@@ -43,6 +44,7 @@ private:
 
   Atlas&                   mAtlas;
   const BlockDescriptions& mBlockDescriptions;
+  const Seed&              mSeed;
 };
 
 }  // namespace dubu::block

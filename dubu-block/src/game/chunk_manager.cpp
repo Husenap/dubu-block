@@ -5,9 +5,12 @@
 
 namespace dubu::block {
 
-ChunkManager::ChunkManager(Atlas& atlas, const BlockDescriptions& blockDescriptions)
+ChunkManager::ChunkManager(Atlas&                   atlas,
+                           const BlockDescriptions& blockDescriptions,
+                           const Seed&              seed)
     : mAtlas(atlas)
-    , mBlockDescriptions(blockDescriptions) {}
+    , mBlockDescriptions(blockDescriptions)
+    , mSeed(seed) {}
 
 void ChunkManager::LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriority priority) {
   if (!queued.contains(chunkCoords)) {
@@ -51,7 +54,8 @@ void ChunkManager::Update(const glm::vec3& cameraPosition) {
 
     switch (priority) {
     case ChunkLoadingPriority::Generate:
-      chunks.emplace(coords, std::make_unique<Chunk>(coords, *this, mAtlas, mBlockDescriptions));
+      chunks.emplace(coords,
+                     std::make_unique<Chunk>(coords, *this, mAtlas, mBlockDescriptions, mSeed));
       break;
     default:
       chunks.at(coords)->Optimize();
@@ -73,6 +77,11 @@ BlockId ChunkManager::GetBlockIdAt(glm::ivec3 coords) const {
 }
 
 void ChunkManager::Debug() {
+  if (ImGui::Button("Clear")) {
+    chunks.clear();
+    chunksToLoad.clear();
+    queued.clear();
+  }
   ImGui::LabelText("Chunks Loaded", "%ld", chunks.size());
 }
 

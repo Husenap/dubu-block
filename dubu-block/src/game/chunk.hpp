@@ -6,6 +6,7 @@
 
 #include "game/atlas.hpp"
 #include "game/block.hpp"
+#include "generator/seed.hpp"
 #include "gl/mesh.hpp"
 
 namespace dubu::block {
@@ -34,7 +35,8 @@ public:
   Chunk(const ChunkCoords        chunkCoords,
         const ChunkManager&      chunkManager,
         Atlas&                   atlas,
-        const BlockDescriptions& blockDescriptions);
+        const BlockDescriptions& blockDescriptions,
+        const Seed&              seed);
 
   int Draw() const;
 
