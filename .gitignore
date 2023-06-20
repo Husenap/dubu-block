@@ -5,3 +5,4 @@ subprojects/packagecache/
 subprojects/glfw*/
 subprojects/imgui*/
 subprojects/glm*/
+subprojects/fast_noise_lite/

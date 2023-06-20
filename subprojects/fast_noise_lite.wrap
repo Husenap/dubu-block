@@ -1,0 +1,9 @@
+[wrap-git]
+directory = fast_noise_lite
+url=https://github.com/Auburn/FastNoiseLite.git
+revision=95900f7372d9aad1691cfeabf45103a132a4664f
+depth=1
+patch_directory = fast_noise_lite
+
+[provide]
+fast_noise_lite = fast_noise_lite_dep
