@@ -39,7 +39,6 @@ public:
   int Draw() const;
 
   void Optimize() {
-    DUBU_LOG_DEBUG("Optimizing chunk at ({},{})", mChunkCoords.x, mChunkCoords.z);
     mHasBeenOptimized = true;
     GenerateMesh();
   }
@@ -52,12 +51,12 @@ private:
 
   BlockId GetBlockIdAtLocalCoords(glm::ivec3 coords) const;
 
-  inline int CoordsToIndex(glm::ivec3 coords) const {
+  inline std::size_t CoordsToIndex(glm::ivec3 coords) const {
     assert(AreCoordsBounded(coords));
     return coords.x + coords.y * ChunkSize.x + coords.z * ChunkSize.x * ChunkSize.y;
   }
-  inline glm::ivec3 IndexToCoords(int index) const {
-    assert(index >= 0 && index < static_cast<int>(blocks.size()));
+  inline glm::ivec3 IndexToCoords(std::size_t index) const {
+    assert(index >= 0 && index < blocks.size());
     return {index % ChunkSize.x,
             (index / ChunkSize.x) % ChunkSize.y,
             (index / (ChunkSize.x * ChunkSize.y))};
