@@ -101,8 +101,8 @@ protected:
 
     static float previousTime = static_cast<float>(glfwGetTime());
     const float  time         = static_cast<float>(glfwGetTime());
-    const float  deltaTime    = time - previousTime;
-    previousTime              = time;
+    // const float  deltaTime    = time - previousTime;
+    previousTime = time;
 
     // mCameraPosition.z += deltaTime * 5.612f;
 

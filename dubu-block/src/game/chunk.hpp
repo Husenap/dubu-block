@@ -30,7 +30,7 @@ class ChunkManager;
 
 class Chunk {
 public:
-  static constexpr glm::ivec3 ChunkSize{16, 256, 16};
+  static constexpr glm::ivec3 ChunkSize{16, 384, 16};
 
   Chunk(const ChunkCoords        chunkCoords,
         const ChunkManager&      chunkManager,

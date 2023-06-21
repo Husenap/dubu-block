@@ -53,6 +53,7 @@ enum BlockType : BlockId {
   Grass     = 4,
   OakLog    = 5,
   OakLeaves = 6,
+  Water     = 7,
 };
 
 class BlockDescriptions {
@@ -80,6 +81,7 @@ public:
                   {{.texturePaths = {{"assets/textures/block/leaves_oak.tga"}},
                     .color        = {0.2f, 0.8f, 0.3f},
                     .isOpaque     = false}});
+    RegisterBlock(Water, {{.texturePaths = {{"assets/textures/block/water_placeholder.png"}}}});
   }
   void RegisterBlock(BlockId id, BlockDescription description) {
     auto [it, inserted] = mBlockDescriptions.try_emplace(id, description);
