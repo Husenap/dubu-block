@@ -45,6 +45,8 @@ private:
   Atlas&                   mAtlas;
   const BlockDescriptions& mBlockDescriptions;
   const Seed&              mSeed;
+
+  glm::vec3 mPreviousCameraPosition;
 };
 
 }  // namespace dubu::block

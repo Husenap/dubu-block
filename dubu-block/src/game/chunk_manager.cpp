@@ -20,13 +20,14 @@ void ChunkManager::LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriorit
 }
 
 void ChunkManager::Update(const glm::vec3& cameraPosition) {
-  static glm::vec3 previousCameraPosition = cameraPosition;
-  if (glm::distance2(previousCameraPosition, cameraPosition) > 20 * 20) {
+  if (glm::distance2(mPreviousCameraPosition, cameraPosition) > 20 * 20) {
     DUBU_LOG_DEBUG("Cleaning up chunks");
     std::erase_if(chunks, [this, &cameraPosition](const auto& p) {
       return ChunkDistanceFromCamera(p.first, cameraPosition) > 50 * 50;
     });
-    previousCameraPosition = cameraPosition;
+    mPreviousCameraPosition = cameraPosition;
+    chunksToLoad.clear();
+    queued.clear();
   }
   if (!chunksToLoad.empty()) {
     const auto removeFrom = std::remove_if(
@@ -83,6 +84,26 @@ void ChunkManager::Debug() {
     queued.clear();
   }
   ImGui::LabelText("Chunks Loaded", "%ld", chunks.size());
+
+  if (ImGui::BeginTable("ChunkTable", 5)) {
+    for (int z = -2; z <= 2; ++z) {
+      ImGui::PushID(z);
+      ImGui::TableNextRow();
+      for (int x = -2; x <= 2; ++x) {
+        ImGui::TableSetColumnIndex(x + 2);
+        ImGui::PushID(x);
+
+        bool contains = queued.contains(
+            {static_cast<int>(std::roundf(mPreviousCameraPosition.x / Chunk::ChunkSize.x)) + x,
+             static_cast<int>(std::roundf(mPreviousCameraPosition.z / Chunk::ChunkSize.z)) + z});
+        ImGui::Checkbox("", &contains);
+
+        ImGui::PopID();
+      }
+      ImGui::PopID();
+    }
+    ImGui::EndTable();
+  }
 }
 
 }  // namespace dubu::block

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <array>
 #include <optional>
 
-#include <dubu_log/dubu_log.h>
 #include <dubu_window/dubu_window.h>
 #include <imgui.h>
 
@@ -61,41 +61,59 @@ public:
         window);
   }
 
-  static void Update() {
-    auto& input = Get();
+  inline static void Update() { Get().InternalUpdate(); }
 
-    if (input.mCursorPreviousPosition) {
-      input.mCursorDelta = input.mCursorPosition - *input.mCursorPreviousPosition;
-    } else {
-      input.mCursorDelta = {0, 0};
-    }
-    input.mCursorPreviousPosition = input.mCursorPosition;
-  }
-
-  static void LockCursor() {
+  inline static void LockCursor() {
     auto& input = Get();
 
     if (input.mWindow) input.mWindow->SetCursorMode(dubu::window::CursorMode::Locked);
     input.mCursorPreviousPosition = std::nullopt;
   }
-  static void UnlockCursor() {
+  inline static void UnlockCursor() {
     auto& input = Get();
 
     if (input.mWindow) input.mWindow->SetCursorMode(dubu::window::CursorMode::Normal);
     input.mCursorPreviousPosition = std::nullopt;
   }
 
-  static bool IsKeyDown(dubu::window::Key key) { return Get().mKeyStates[key]; }
+  inline static bool IsKeyDown(dubu::window::Key key) { return Get().mKeyStates[key]; }
 
-  static const glm::vec2& GetCursorDelta() { return Get().mCursorDelta; }
+  inline static float GamepadAxis(int gamepad, dubu::window::GamepadAxis axis) {
+    return Get().mPreviousGamepadState[gamepad].axes[axis];
+  }
+  inline static bool IsGamepadButtonDown(int gamepad, dubu::window::GamepadButton button) {
+    return Get().mPreviousGamepadState[gamepad].buttons[button] == dubu::window::Action::Press;
+  }
+  inline static bool IsGamepadConnected(int gamepad) {
+    return Get().mWindow->IsGamepadConnected(gamepad);
+  }
+
+  inline static const glm::vec2& GetCursorDelta() { return Get().mCursorDelta; }
 
 private:
-  dubu::window::IWindow*   mWindow = nullptr;
-  glm::vec2                mCursorDelta;
-  glm::vec2                mCursorPosition;
-  std::optional<glm::vec2> mCursorPreviousPosition;
+  inline void InternalUpdate() {
+    if (mCursorPreviousPosition) {
+      mCursorDelta = mCursorPosition - *mCursorPreviousPosition;
+    } else {
+      mCursorDelta = {0, 0};
+    }
+    mCursorPreviousPosition = mCursorPosition;
 
-  bool mKeyStates[512]{false};
+    for (uint8_t gamepadIndex = 0; gamepadIndex < mPreviousGamepadState.size(); ++gamepadIndex) {
+      if (auto gps = mWindow->GetGamepadState(gamepadIndex); gps) {
+        mPreviousGamepadState[gamepadIndex] = *gps;
+      }
+    }
+  }
+
+  dubu::window::IWindow*   mWindow                 = nullptr;
+  glm::vec2                mCursorDelta            = {};
+  glm::vec2                mCursorPosition         = {};
+  std::optional<glm::vec2> mCursorPreviousPosition = {};
+
+  std::array<bool, 512> mKeyStates = {false};
+
+  std::array<dubu::window::GamepadState, 16> mPreviousGamepadState = {};
 };
 
 }  // namespace dubu::block
