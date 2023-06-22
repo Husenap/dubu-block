@@ -27,7 +27,7 @@ public:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexStorage2D(GL_TEXTURE_2D, 5, GL_RGBA8, Size, Size);
+    glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, Size, Size);
   }
 
   ~Atlas() { glDeleteTextures(1, &mTexture); }

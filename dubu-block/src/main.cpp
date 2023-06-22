@@ -3,9 +3,6 @@
 #include <iostream>
 #include <memory>
 #include <queue>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
 
 #include <dubu_event/dubu_event.h>
 #include <dubu_log/dubu_log.h>
@@ -34,9 +31,7 @@ namespace dubu::block {
 class App : public dubu::opengl_app::AppBase {
 public:
   App()
-      : dubu::opengl_app::AppBase({
-            .appName = "dubu-block",
-        }) {}
+      : dubu::opengl_app::AppBase({.appName = "dubu-block"}) {}
   virtual ~App() = default;
 
 protected:
