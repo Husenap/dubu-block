@@ -29,7 +29,6 @@ meson install
 #### Todo
 - [ ] See if it's a good idea to replace BlockId directly with BlockType
 - [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
-- [ ] Implement a basic input system (make sure it gives ImGui precedence)
 - [ ] Implement a first person avatar that can run around in the world
 - [ ] Figure out a way to color leaves and grass using mask (how to differentiate between transparency and color masking?)
 - [ ] Refactor code to allow more types of renderers (add deferred renderer?)
@@ -53,3 +52,4 @@ meson install
 - [x] Fix github language stats
 - [x] Figure out how to add imgui docking branch to meson
 - [x] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
+- [x] Implement a basic input system (make sure it gives ImGui precedence)
