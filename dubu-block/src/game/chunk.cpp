@@ -6,7 +6,6 @@
 
 #include "chunk_manager.hpp"
 #include "io/io.hpp"
-#include "perlin_noise.hpp"
 #include "util/timer.hpp"
 
 namespace dubu::block {

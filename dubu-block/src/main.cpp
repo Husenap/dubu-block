@@ -1,8 +1,4 @@
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <memory>
-#include <queue>
 
 #include <dubu_event/dubu_event.h>
 #include <dubu_log/dubu_log.h>
@@ -14,14 +10,11 @@
 #include <stb/stb_image.h>
 
 #include "game/atlas.hpp"
-#include "game/block.hpp"
-#include "game/chunk.hpp"
 #include "game/chunk_manager.hpp"
 #include "generator/seed.hpp"
 #include "gl/debug_drawer.hpp"
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
-#include "gl/texture.hpp"
 #include "imgui/dock_space.hpp"
 #include "io/io.hpp"
 #include "linalg/frustum.hpp"
