@@ -109,11 +109,11 @@ protected:
     glClearColor(mSkyColor.r, mSkyColor.g, mSkyColor.b, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const glm::vec3 cameraLookAt =
-        mCameraPosition + glm::vec3{-std::sin(glm::radians(mYaw)) * std::cos(glm::radians(mPitch)),
-                                    std::sin(glm::radians(mPitch)),
-                                    std::cos(glm::radians(mYaw)) * std::cos(glm::radians(mPitch))};
-    const glm::mat4 view = glm::lookAt(mCameraPosition, cameraLookAt, glm::vec3(0.0f, 1.0f, 0.0f));
+    const glm::mat4 view = glm::translate(
+        glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(mPitch), glm::vec3(-1, 0, 0)),
+                    glm::radians(mYaw),
+                    glm::vec3(0, 1, 0)),
+        -mCameraPosition);
     const glm::mat4 projection =
         glm::perspective(glm::radians(45.0f),
                          static_cast<float>(mWidth) / mHeight,
@@ -197,8 +197,11 @@ protected:
 
       if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::DragFloat3("Camera Position", glm::value_ptr(mCameraPosition));
-        ImGui::DragFloat("Pitch", &mPitch, 0.1f, -89.9f, 89.9f);
-        ImGui::DragFloat("Yaw", &mYaw, 0.1f);
+        ImGui::DragFloat("Pitch", &mPitch, 0.1f, -90.0f, 90.0f);
+        if (ImGui::DragFloat("Yaw", &mYaw, 0.1f)) {
+          while (mYaw < 0) mYaw += 360;
+          while (mYaw > 360) mYaw -= 360;
+        }
       }
 
       if (ImGui::CollapsingHeader("Chunks")) {
