@@ -53,7 +53,6 @@ private:
   static int ConstructionCounter;
 
   GLFWwindow* mWindow;
-  CursorMode  mCursorMode;
 };
 
 }  // namespace dubu::window

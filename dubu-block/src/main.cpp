@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb/stb_image.h>
 
+#include "camera/freefly_camera.hpp"
 #include "game/atlas.hpp"
 #include "game/chunk_manager.hpp"
 #include "generator/seed.hpp"
@@ -16,6 +17,7 @@
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
 #include "imgui/dock_space.hpp"
+#include "input/input.hpp"
 #include "io/io.hpp"
 #include "linalg/frustum.hpp"
 
@@ -32,9 +34,9 @@ protected:
     mResizeToken = mWindow->RegisterListener<dubu::window::EventResize>([&](const auto& e) {
       mWidth  = e.width;
       mHeight = e.height;
-      DUBU_LOG_DEBUG("Window resized: ({}, {})", mWidth, mHeight);
     });
 
+    Input::Get().Init(*mWindow);
     mDebugDrawer = std::make_unique<DebugDrawer>();
 
     glEnable(GL_DEPTH_TEST);
@@ -81,7 +83,7 @@ protected:
   }
 
   virtual void Update() override {
-    mChunkManager->Update(mCameraPosition);
+    mChunkManager->Update(camera.GetPosition());
 
     if (mWidth <= 0 || mHeight <= 0) return;
 
@@ -89,21 +91,18 @@ protected:
 
     static float previousTime = static_cast<float>(glfwGetTime());
     const float  time         = static_cast<float>(glfwGetTime());
-    // const float  deltaTime    = time - previousTime;
-    previousTime = time;
+    const float  deltaTime    = time - previousTime;
+    previousTime              = time;
 
-    // mCameraPosition.z += deltaTime * 5.612f;
+    Input::Update();
+    camera.Update(deltaTime);
 
     glClearColor(mSkyColor.r, mSkyColor.g, mSkyColor.b, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const glm::mat4 view = glm::translate(
-        glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(mPitch), glm::vec3(-1, 0, 0)),
-                    glm::radians(mYaw),
-                    glm::vec3(0, 1, 0)),
-        -mCameraPosition);
+    const glm::mat4 view = camera.GetViewMatrix();
     const glm::mat4 projection =
-        glm::perspective(glm::radians(45.0f),
+        glm::perspective(glm::radians(60.0f),
                          static_cast<float>(mWidth) / mHeight,
                          0.1f,
                          static_cast<float>((mRenderDistance + 1) * Chunk::ChunkSize.z));
@@ -118,11 +117,12 @@ protected:
 
     mAtlas->Bind(GL_TEXTURE0);
     for (const auto& [i, j] : mChunkIndexTable) {
-      const int x = static_cast<int>(std::roundf(mCameraPosition.x / Chunk::ChunkSize.x)) + i;
-      const int z = static_cast<int>(std::roundf(mCameraPosition.z / Chunk::ChunkSize.z)) + j;
+      const auto& cameraPosition = camera.GetPosition();
+      const int   x = static_cast<int>(std::roundf(cameraPosition.x / Chunk::ChunkSize.x)) + i;
+      const int   z = static_cast<int>(std::roundf(cameraPosition.z / Chunk::ChunkSize.z)) + j;
 
-      const float dx = (x + 0.5f) - mCameraPosition.x / (float)(Chunk::ChunkSize.x);
-      const float dz = (z + 0.5f) - mCameraPosition.z / (float)(Chunk::ChunkSize.z);
+      const float dx = (x + 0.5f) - cameraPosition.x / (float)(Chunk::ChunkSize.x);
+      const float dz = (z + 0.5f) - cameraPosition.z / (float)(Chunk::ChunkSize.z);
       const float d2 = dx * dx + dz * dz;
       if (d2 > mRenderDistance * mRenderDistance) continue;
 
@@ -184,7 +184,7 @@ protected:
       }
 
       if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::DragFloat3("Camera Position", glm::value_ptr(mCameraPosition));
+        // ImGui::DragFloat3("Camera Position", glm::value_ptr(mCameraPosition));
         ImGui::DragFloat("Pitch", &mPitch, 0.1f, -90.0f, 90.0f);
         if (ImGui::DragFloat("Yaw", &mYaw, 0.1f)) {
           while (mYaw < 0) mYaw += 360;
@@ -233,9 +233,9 @@ private:
   std::unique_ptr<Atlas> mAtlas;
   BlockDescriptions      mBlockDescriptions;
 
-  glm::vec3 mCameraPosition{-8, 167, 25};
-  float     mPitch = -22;
-  float     mYaw   = -2.7f;
+  // glm::vec3 mCameraPosition{-8, 167, 25};
+  float mPitch = -22;
+  float mYaw   = -2.7f;
 
   glm::vec3 mSkyColor{0.45f, 0.76f, 1.0f};
   glm::vec2 mFogControl{2.f, 250000.f};
@@ -243,6 +243,8 @@ private:
   std::unique_ptr<DebugDrawer> mDebugDrawer;
 
   Seed mSeed{1337};
+
+  FreeflyCamera camera;
 };
 }  // namespace dubu::block
 
