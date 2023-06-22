@@ -1,5 +1,7 @@
 #include "FileLogger.h"
 
+#include "format.hpp"
+
 namespace dubu::log {
 
 FileLogger::FileLogger(const std::string& file) {
@@ -11,8 +13,8 @@ void FileLogger::InternalLog(LogLevel           level,
                              uint32_t           line,
                              const std::string& function,
                              const std::string& text) {
-  mStream << std::format("[{}]: {}:{}:{}: {}", LogLevelString(level), file, line, function, text)
-          << std::endl;
+  dubu::log::format_to(
+      mStream, "[{}]: {}:{}:{}: {}\n", LogLevelString(level), file, line, function, text);
 }
 
 }  // namespace dubu::log

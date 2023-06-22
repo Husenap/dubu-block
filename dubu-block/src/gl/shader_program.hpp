@@ -3,7 +3,7 @@
 #include <optional>
 #include <string>
 
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 namespace dubu::block {
 

@@ -4,5 +4,5 @@
 #include <vector>
 
 namespace dubu::block {
-std::vector<unsigned char> read_file(std::string_view filepath);
+std::vector<unsigned char> ReadFile(std::string_view filepath);
 }  // namespace dubu::block

@@ -1,7 +1,6 @@
 subdir('dubu-util')
 subdir('dubu-event')
 subdir('dubu-window')
-subdir('glad')
 subdir('dubu-log')
 subdir('dubu-opengl-app')
-subdir('stb')
+subdir('dubu-rect-pack')

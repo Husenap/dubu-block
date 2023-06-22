@@ -3,13 +3,18 @@ project('dubu-block', 'c', 'cpp',
   default_options : [
     'warning_level=3',
     'cpp_std=c++20',
-    'default_library=static'
+    'default_library=static',
+    'buildtype=debugoptimized'
   ],
 )
 
+glad_dep = subproject('glad').get_variable('glad_dep')
+stb_dep = subproject('stb').get_variable('stb_dep')
+
 glfw_dep = dependency('glfw3')
 glm_dep = dependency('glm')
-imgui_dep = dependency('imgui')
+imgui_dep = dependency('imgui_docking', default_options:['opengl=enabled', 'glfw=enabled'])
+fast_noise_lite_dep = dependency('fast_noise_lite')
 
 subdir('lib')
 subdir('dubu-block')

@@ -32,8 +32,6 @@ private:
   void InitWindow();
   void InitImGui();
 
-  void DrawDockSpace();
-
   CreateInfo mCreateInfo;
 
   dubu::event::Token mResizeToken;
