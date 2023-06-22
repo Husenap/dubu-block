@@ -1,2 +1,2 @@
-lib/stb/** linguist-vendored
-lib/glad/** linguist-vendored
+subprojects/stb/** linguist-vendored
+subprojects/glad/** linguist-vendored
