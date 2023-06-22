@@ -43,6 +43,9 @@ meson install
 - [ ] Add support for different world saves on disk
 - [ ] Store imgui.ini out of source
 - [ ] Add foliage
+- [ ] Ambient Occlusion uses vertex shading which creates diagonal spikes, figure out a way to fix it
+- [ ] Calculate Lighting data in chunks
+- [ ] Serialize chunk generator curves
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
