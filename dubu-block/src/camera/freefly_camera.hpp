@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
 
 #include "input/input.hpp"
 
@@ -88,29 +87,26 @@ private:
   void UpdateGamepad(float deltaTime) {
     if (!Input::IsGamepadConnected(0)) return;
 
-    const glm::vec2 rs{Input::GamepadAxis(0, dubu::window::GamepadAxisRightX),
-                       Input::GamepadAxis(0, dubu::window::GamepadAxisRightY)};
+    const auto rs =
+        Input::GamepadAxis2D(0, dubu::window::GamepadAxisRightX, dubu::window::GamepadAxisRightY);
 
-    if (glm::length2(rs) > 0.1f * 0.1f) {
-      mPitch = std::clamp(mPitch + rs.y * GamepadSensitivity * deltaTime, -90.0f, 90.0f);
-      mYaw += rs.x * GamepadSensitivity * deltaTime;
-      while (mYaw < 0.0f) mYaw += 360.0f;
-      while (mYaw > 360.0f) mYaw -= 360.0f;
-    }
+    mPitch = std::clamp(mPitch + rs.y * GamepadSensitivity * deltaTime, -90.0f, 90.0f);
+    mYaw += rs.x * GamepadSensitivity * deltaTime;
+    while (mYaw < 0.0f) mYaw += 360.0f;
+    while (mYaw > 360.0f) mYaw -= 360.0f;
 
-    float speedMultiplier = std::lerp(
+    const float speedMultiplier = std::lerp(
         std::lerp(1.0f, 10.0f, Input::GamepadAxis(0, dubu::window::GamepadAxisRightTrigger)),
         0.1f,
         Input::GamepadAxis(0, dubu::window::GamepadAxisLeftTrigger));
+
     const float movementSpeed = deltaTime * BaseMovementSpeed * speedMultiplier;
 
-    const glm::vec2 ls{Input::GamepadAxis(0, dubu::window::GamepadAxisLeftX),
-                       Input::GamepadAxis(0, dubu::window::GamepadAxisLeftY)};
+    const auto ls =
+        Input::GamepadAxis2D(0, dubu::window::GamepadAxisLeftX, dubu::window::GamepadAxisLeftY);
 
-    if (glm::length2(ls) > 0.1f * 0.1f) {
-      mPosition += ls.x * movementSpeed * GetRight();
-      mPosition += ls.y * movementSpeed * -GetForward();
-    }
+    mPosition += ls.x * movementSpeed * GetRight();
+    mPosition += ls.y * movementSpeed * -GetForward();
 
     const auto up = GetUp();
     if (Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonRightBumper)) {

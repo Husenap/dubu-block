@@ -4,6 +4,8 @@
 #include <optional>
 
 #include <dubu_window/dubu_window.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 #include <imgui.h>
 
 #include "util/singleton.hpp"
@@ -80,6 +82,26 @@ public:
 
   inline static float GamepadAxis(int gamepad, dubu::window::GamepadAxis axis) {
     return Get().mPreviousGamepadState[gamepad].axes[axis];
+  }
+  inline static glm::vec2 GamepadAxis2D(const int                       gamepad,
+                                        const dubu::window::GamepadAxis xAxis,
+                                        const dubu::window::GamepadAxis yAxis,
+                                        const float                     deadzone = 0.1f,
+                                        const float                     curve    = 2.0f) {
+    const auto& input = Get();
+
+    glm::vec2 v = {input.mPreviousGamepadState[gamepad].axes[xAxis],
+                   input.mPreviousGamepadState[gamepad].axes[yAxis]};
+
+    const float d2 = glm::length2(v);
+    if (d2 < deadzone * deadzone) {
+      return {0, 0};
+    }
+
+    const float d = std::sqrt(d2);
+    v *= std::pow((d - deadzone) / (1.0f - deadzone), curve) / d;
+
+    return v;
   }
   inline static bool IsGamepadButtonDown(int gamepad, dubu::window::GamepadButton button) {
     return Get().mPreviousGamepadState[gamepad].buttons[button] == dubu::window::Action::Press;
