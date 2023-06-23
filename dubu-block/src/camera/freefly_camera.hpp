@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
 
 #include "input/input.hpp"
 
@@ -33,6 +34,16 @@ public:
   void Update(float deltaTime) {
     UpdateKeyboardAndMouse(deltaTime);
     UpdateGamepad(deltaTime);
+  }
+
+  void Debug() {
+    if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+      bool edited = false;
+      edited |= ImGui::DragFloat3("Camera Position", glm::value_ptr(mPosition));
+      edited |= ImGui::DragFloat("Pitch", &mPitch, 0.1f, -90.0f, 90.0f);
+      edited |= ImGui::DragFloat("Yaw", &mYaw, 0.1f);
+      if (edited) UpdateViewMatrix();
+    }
   }
 
   const glm::mat4& GetViewMatrix() const { return mView; }

@@ -83,19 +83,19 @@ protected:
   }
 
   virtual void Update() override {
-    mChunkManager->Update(camera.GetPosition());
-
-    if (mWidth <= 0 || mHeight <= 0) return;
-
-    DrawDockSpace();
-
     static float previousTime = static_cast<float>(glfwGetTime());
     const float  time         = static_cast<float>(glfwGetTime());
     const float  deltaTime    = time - previousTime;
     previousTime              = time;
 
+    mChunkManager->Update(camera.GetPosition(), time);
+
     Input::Update();
     camera.Update(deltaTime);
+
+    if (mWidth <= 0 || mHeight <= 0) return;
+
+    DrawDockSpace();
 
     glClearColor(mSkyColor.r, mSkyColor.g, mSkyColor.b, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -158,6 +158,8 @@ protected:
         glUniform2fv(
             mChunkProgram.GetUniformLocation("FOG_CONTROL"), 1, glm::value_ptr(mFogControl));
 
+        glUniform1f(mChunkProgram.GetUniformLocation("AGE"), time - chunk->GetCreationTime());
+
         triangles += chunk->Draw();
         ++chunksDrawn;
 
@@ -183,14 +185,7 @@ protected:
           CalculateChunkIndexTable();
       }
 
-      if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
-        // ImGui::DragFloat3("Camera Position", glm::value_ptr(mCameraPosition));
-        ImGui::DragFloat("Pitch", &mPitch, 0.1f, -90.0f, 90.0f);
-        if (ImGui::DragFloat("Yaw", &mYaw, 0.1f)) {
-          while (mYaw < 0) mYaw += 360;
-          while (mYaw > 360) mYaw -= 360;
-        }
-      }
+      camera.Debug();
 
       if (ImGui::CollapsingHeader("Chunks")) {
         mChunkManager->Debug();
@@ -232,10 +227,6 @@ private:
 
   std::unique_ptr<Atlas> mAtlas;
   BlockDescriptions      mBlockDescriptions;
-
-  // glm::vec3 mCameraPosition{-8, 167, 25};
-  float mPitch = -22;
-  float mYaw   = -2.7f;
 
   glm::vec3 mSkyColor{0.45f, 0.76f, 1.0f};
   glm::vec2 mFogControl{2.f, 250000.f};

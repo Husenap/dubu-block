@@ -18,7 +18,7 @@ public:
 
   void LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriority priority);
 
-  void Update(const glm::vec3& cameraPosition);
+  void Update(const glm::vec3& cameraPosition, float time);
 
   const Chunk* FindChunk(const ChunkCoords& chunkCoords) const {
     if (auto chunk = chunks.find(chunkCoords); chunk != chunks.end()) return chunk->second.get();
