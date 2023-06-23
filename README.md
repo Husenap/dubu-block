@@ -38,13 +38,12 @@ meson install
 - [ ] Figure out how to generically implement liquids such as water and lava
 - [ ] Add a atmospheric scattering shader
 - [ ] Serialize chunks to disk
-- [ ] Figure out how to add seeding
 - [ ] Add support for different world saves on disk
 - [ ] Store imgui.ini out of source
 - [ ] Add foliage
-- [ ] Ambient Occlusion uses vertex shading which creates diagonal spikes, figure out a way to fix it
 - [ ] Calculate Lighting data in chunks
 - [ ] Serialize chunk generator curves
+- [ ] Ambient Occlusion uses vertex shading which creates diagonal spikes, figure out a way to fix it
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
@@ -53,3 +52,4 @@ meson install
 - [x] Figure out how to add imgui docking branch to meson
 - [x] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
 - [x] Implement a basic input system (make sure it gives ImGui precedence)
+- [x] Figure out how to add seeding
