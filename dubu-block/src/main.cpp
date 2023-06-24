@@ -23,7 +23,7 @@
 
 namespace dubu::block {
 
-class App : public dubu::opengl_app::AppBase {
+class App : public dubu::opengl_app::AppBase, public dubu::event::EventSubscriber {
 public:
   App()
       : dubu::opengl_app::AppBase({.appName = "dubu-block"}) {}
@@ -31,10 +31,12 @@ public:
 
 protected:
   virtual void Init() override {
-    mResizeToken = mWindow->RegisterListener<dubu::window::EventResize>([&](const auto& e) {
-      mWidth  = e.width;
-      mHeight = e.height;
-    });
+    Subscribe<dubu::window::EventResize>(
+        [&](const auto& e) {
+          mWidth  = e.width;
+          mHeight = e.height;
+        },
+        *mWindow);
 
     Input::Get().Init(*mWindow);
     mDebugDrawer = std::make_unique<DebugDrawer>();
@@ -213,8 +215,6 @@ protected:
   }
 
 private:
-  dubu::event::Token mResizeToken;
-
   int mWidth  = 1920;
   int mHeight = 1080;
 

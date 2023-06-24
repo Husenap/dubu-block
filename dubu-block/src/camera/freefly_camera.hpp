@@ -32,8 +32,15 @@ public:
   }
 
   void Update(float deltaTime) {
-    UpdateKeyboardAndMouse(deltaTime);
-    UpdateGamepad(deltaTime);
+    if (!UpdateKeyboardAndMouse()) {
+      if (!UpdateGamepad(deltaTime)) {
+        mTargetVelocity = {};
+      }
+    }
+
+    mVelocity += (mTargetVelocity - mVelocity) * deltaTime * 10.0f;
+    mPosition += mVelocity * deltaTime;
+    UpdateViewMatrix();
   }
 
   void Debug() {
@@ -54,13 +61,13 @@ public:
   const glm::vec3& GetPosition() const { return mPosition; }
 
 private:
-  void UpdateKeyboardAndMouse(float deltaTime) {
-    if (!mActive) return;
+  bool UpdateKeyboardAndMouse() {
+    if (!mActive) return false;
 
-    const auto delta = Input::GetCursorDelta();
+    const auto cursorDelta = Input::GetCursorDelta();
 
-    mPitch = std::clamp(mPitch - delta.y * MouseSensitivity, -90.0f, 90.0f);
-    mYaw += delta.x * MouseSensitivity;
+    mPitch = std::clamp(mPitch - cursorDelta.y * MouseSensitivity, -90.0f, 90.0f);
+    mYaw += cursorDelta.x * MouseSensitivity;
     while (mYaw < 0.0f) mYaw += 360.0f;
     while (mYaw > 360.0f) mYaw -= 360.0f;
 
@@ -72,31 +79,33 @@ private:
     if (Input::IsKeyDown(dubu::window::KeyLeftShift)) speedMultiplier = 10.0f;
     if (Input::IsKeyDown(dubu::window::KeyLeftControl)) speedMultiplier = 0.1f;
 
-    const float movementSpeed = deltaTime * BaseMovementSpeed * speedMultiplier;
+    const float movementSpeed = BaseMovementSpeed * speedMultiplier;
+
+    mTargetVelocity = {};
 
     if (Input::IsKeyDown(dubu::window::KeyW)) {
-      mPosition -= forward * movementSpeed;
+      mTargetVelocity -= forward * movementSpeed;
     }
     if (Input::IsKeyDown(dubu::window::KeyS)) {
-      mPosition += forward * movementSpeed;
+      mTargetVelocity += forward * movementSpeed;
     }
     if (Input::IsKeyDown(dubu::window::KeyD)) {
-      mPosition += right * movementSpeed;
+      mTargetVelocity += right * movementSpeed;
     }
     if (Input::IsKeyDown(dubu::window::KeyA)) {
-      mPosition -= right * movementSpeed;
+      mTargetVelocity -= right * movementSpeed;
     }
     if (Input::IsKeyDown(dubu::window::KeyE)) {
-      mPosition += up * movementSpeed;
+      mTargetVelocity += up * movementSpeed;
     }
     if (Input::IsKeyDown(dubu::window::KeyQ)) {
-      mPosition -= up * movementSpeed;
+      mTargetVelocity -= up * movementSpeed;
     }
 
-    UpdateViewMatrix();
+    return true;
   }
-  void UpdateGamepad(float deltaTime) {
-    if (!Input::IsGamepadConnected(0)) return;
+  bool UpdateGamepad(float deltaTime) {
+    if (!Input::IsGamepadConnected(0)) return false;
 
     const auto rs =
         Input::GamepadAxis2D(0, dubu::window::GamepadAxisRightX, dubu::window::GamepadAxisRightY);
@@ -111,23 +120,21 @@ private:
         0.1f,
         Input::GamepadAxis(0, dubu::window::GamepadAxisLeftTrigger));
 
-    const float movementSpeed = deltaTime * BaseMovementSpeed * speedMultiplier;
+    const float movementSpeed = BaseMovementSpeed * speedMultiplier;
 
     const auto ls =
         Input::GamepadAxis2D(0, dubu::window::GamepadAxisLeftX, dubu::window::GamepadAxisLeftY);
 
-    mPosition += ls.x * movementSpeed * GetRight();
-    mPosition += ls.y * movementSpeed * -GetForward();
+    mTargetVelocity = {};
 
-    const auto up = GetUp();
-    if (Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonRightBumper)) {
-      mPosition += up * movementSpeed;
-    }
-    if (Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonLeftBumper)) {
-      mPosition -= up * movementSpeed;
-    }
+    mTargetVelocity += ls.x * GetRight() * movementSpeed;
+    mTargetVelocity -= ls.y * GetForward() * movementSpeed;
+    if (Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonRightBumper))
+      mTargetVelocity += GetUp() * movementSpeed;
+    if (Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonLeftBumper))
+      mTargetVelocity -= GetUp() * movementSpeed;
 
-    UpdateViewMatrix();
+    return true;
   }
   void UpdateViewMatrix() {
     mView = glm::translate(
@@ -141,7 +148,10 @@ private:
   glm::vec3 mPosition{-8, 167, 25};
   float     mPitch = 0.0f;
   float     mYaw   = 0.0f;
-  glm::mat4 mView;
+  glm::mat4 mView  = {};
+
+  glm::vec3 mTargetVelocity = {};
+  glm::vec3 mVelocity       = {};
 
   static constexpr float MouseSensitivity   = 0.1f;
   static constexpr float GamepadSensitivity = 100.0f;
