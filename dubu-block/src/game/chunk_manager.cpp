@@ -84,26 +84,6 @@ void ChunkManager::Debug() {
     queued.clear();
   }
   ImGui::LabelText("Chunks Loaded", "%ld", chunks.size());
-
-  if (ImGui::BeginTable("ChunkTable", 5)) {
-    for (int z = -2; z <= 2; ++z) {
-      ImGui::PushID(z);
-      ImGui::TableNextRow();
-      for (int x = -2; x <= 2; ++x) {
-        ImGui::TableSetColumnIndex(x + 2);
-        ImGui::PushID(x);
-
-        bool contains = queued.contains(
-            {static_cast<int>(std::roundf(mPreviousCameraPosition.x / Chunk::ChunkSize.x)) + x,
-             static_cast<int>(std::roundf(mPreviousCameraPosition.z / Chunk::ChunkSize.z)) + z});
-        ImGui::Checkbox("", &contains);
-
-        ImGui::PopID();
-      }
-      ImGui::PopID();
-    }
-    ImGui::EndTable();
-  }
 }
 
 }  // namespace dubu::block
