@@ -36,7 +36,8 @@ public:
         const ChunkManager&      chunkManager,
         Atlas&                   atlas,
         const BlockDescriptions& blockDescriptions,
-        const Seed&              seed);
+        const Seed&              seed,
+        float                    creationTime);
 
   int Draw() const;
 
@@ -47,6 +48,8 @@ public:
   bool HasBeenOptimized() const { return mHasBeenOptimized; }
 
   BlockId GetBlockIdAtWorldCoords(glm::ivec3 coords) const;
+
+  float GetCreationTime() const { return mCreationTime; }
 
 private:
   void GenerateMesh();
@@ -195,6 +198,7 @@ private:
   Atlas&                   mAtlas;
   const BlockDescriptions& mBlockDescriptions;
 
-  bool mHasBeenOptimized = false;
+  float mCreationTime     = {};
+  bool  mHasBeenOptimized = false;
 };
 }  // namespace dubu::block

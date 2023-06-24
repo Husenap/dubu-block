@@ -76,9 +76,7 @@ bool GLFWWindow::IsFocused() const {
 }
 
 void GLFWWindow::SetCursorMode(dubu::window::CursorMode cursorMode) {
-  mCursorMode = cursorMode;
-
-  switch (mCursorMode) {
+  switch (cursorMode) {
   case CursorMode::Normal:
     glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     break;

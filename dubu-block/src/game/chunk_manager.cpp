@@ -19,14 +19,15 @@ void ChunkManager::LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriorit
   }
 }
 
-void ChunkManager::Update(const glm::vec3& cameraPosition) {
-  static glm::vec3 previousCameraPosition = cameraPosition;
-  if (glm::distance2(previousCameraPosition, cameraPosition) > 20 * 20) {
+void ChunkManager::Update(const glm::vec3& cameraPosition, float time) {
+  if (glm::distance2(mPreviousCameraPosition, cameraPosition) > 20 * 20) {
     DUBU_LOG_DEBUG("Cleaning up chunks");
     std::erase_if(chunks, [this, &cameraPosition](const auto& p) {
       return ChunkDistanceFromCamera(p.first, cameraPosition) > 50 * 50;
     });
-    previousCameraPosition = cameraPosition;
+    mPreviousCameraPosition = cameraPosition;
+    chunksToLoad.clear();
+    queued.clear();
   }
   if (!chunksToLoad.empty()) {
     const auto removeFrom = std::remove_if(
@@ -54,8 +55,8 @@ void ChunkManager::Update(const glm::vec3& cameraPosition) {
 
     switch (priority) {
     case ChunkLoadingPriority::Generate:
-      chunks.emplace(coords,
-                     std::make_unique<Chunk>(coords, *this, mAtlas, mBlockDescriptions, mSeed));
+      chunks.emplace(
+          coords, std::make_unique<Chunk>(coords, *this, mAtlas, mBlockDescriptions, mSeed, time));
       break;
     default:
       chunks.at(coords)->Optimize();

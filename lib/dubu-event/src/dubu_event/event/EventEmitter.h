@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include <dubu_util/dubu_util.h>
@@ -22,8 +22,8 @@ public:
   [[nodiscard]] Token RegisterListener(std::function<void(const EventType&)> callback) {
     const dubu::util::IdType eventId = dubu::util::TypeId::Get<std::decay_t<EventType>>();
 
-    const auto cb =
-        new std::function<void(const EventType&)>{[=](const EventType& event) { callback(event); }};
+    const auto cb = new std::function<void(const EventType&)>{
+        [callback](const EventType& event) { callback(event); }};
 
     const Token token = std::make_shared<internal::_Token>();
 
@@ -67,7 +67,7 @@ protected:
 private:
   void RegisterListener(dubu::util::IdType eventId, Listener listener);
 
-  std::map<dubu::util::IdType, std::vector<Listener>> mListeners;
+  std::unordered_map<dubu::util::IdType, std::vector<Listener>> mListeners;
 };
 
 }  // namespace dubu::event

@@ -4,16 +4,16 @@ out vec4 FragColor;
 
 uniform sampler2D atlas;
 
-in vec3 color;
-in vec2 uv0;
+in vec3  color;
+in vec2  uv0;
 in float ao;
 
 in vec4 fogColor;
 
-void main(){
+void main() {
   vec4 texel = texture(atlas, uv0);
 
-  if(texel.a < 0.5){
+  if (texel.a < 0.5) {
     discard;
   }
 

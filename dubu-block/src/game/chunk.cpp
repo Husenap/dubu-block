@@ -14,13 +14,15 @@ Chunk::Chunk(const ChunkCoords        chunkCoords,
              const ChunkManager&      chunkManager,
              Atlas&                   atlas,
              const BlockDescriptions& blockDescriptions,
-             const Seed&              seed)
+             const Seed&              seed,
+             float                    creationTime)
     : mChunkCoords(chunkCoords)
     , mChunkBlockOffset({chunkCoords.x * Chunk::ChunkSize.x, chunkCoords.z * Chunk::ChunkSize.z})
     , mMesh({.usage = GL_DYNAMIC_DRAW})
     , mChunkManager(chunkManager)
     , mAtlas(atlas)
-    , mBlockDescriptions(blockDescriptions) {
+    , mBlockDescriptions(blockDescriptions)
+    , mCreationTime(creationTime) {
   blocks.fill(BlockType::Empty);
 
   for (int x = 0; x < ChunkSize.x; ++x) {
