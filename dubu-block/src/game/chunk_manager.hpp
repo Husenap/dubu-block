@@ -25,7 +25,7 @@ public:
     return nullptr;
   }
 
-  BlockId GetBlockIdAt(glm::ivec3 coords) const;
+  BlockType GetBlockTypeAt(glm::ivec3 coords) const;
 
   void Debug();
 

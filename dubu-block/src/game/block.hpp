@@ -8,8 +8,6 @@
 
 namespace dubu::block {
 
-using BlockId = uint8_t;
-
 class BlockDescription {
 public:
   struct CreateInfo {
@@ -45,7 +43,7 @@ private:
   const CreateInfo mCreateInfo;
 };
 
-enum BlockType : BlockId {
+enum class BlockType : uint8_t {
   Empty     = 0,
   Bedrock   = 1,
   Stone     = 2,
@@ -59,17 +57,17 @@ enum BlockType : BlockId {
 class BlockDescriptions {
 public:
   BlockDescriptions() {
-    RegisterBlock(Bedrock, {{.texturePaths = {{"assets/textures/block/bedrock.png"}}}});
-    RegisterBlock(Stone, {{.texturePaths = {{"assets/textures/block/stone.png"}}}});
-    RegisterBlock(Dirt, {{.texturePaths = {{"assets/textures/block/dirt.png"}}}});
-    RegisterBlock(Grass,
+    RegisterBlock(BlockType::Bedrock, {{.texturePaths = {{"assets/textures/block/bedrock.png"}}}});
+    RegisterBlock(BlockType::Stone, {{.texturePaths = {{"assets/textures/block/stone.png"}}}});
+    RegisterBlock(BlockType::Dirt, {{.texturePaths = {{"assets/textures/block/dirt.png"}}}});
+    RegisterBlock(BlockType::Grass,
                   {{.texturePaths  = {{"assets/textures/block/grass_carried.png",
                                        "assets/textures/block/grass_side_carried.png",
                                        "assets/textures/block/dirt.png"}},
                     .topTexture    = 0,
                     .sideTexture   = 1,
                     .bottomTexture = 2}});
-    RegisterBlock(OakLog,
+    RegisterBlock(BlockType::OakLog,
                   {{.texturePaths  = {{
                         "assets/textures/block/log_oak.png",
                         "assets/textures/block/log_oak_top.png",
@@ -77,24 +75,25 @@ public:
                     .topTexture    = 1,
                     .sideTexture   = 0,
                     .bottomTexture = 1}});
-    RegisterBlock(OakLeaves,
+    RegisterBlock(BlockType::OakLeaves,
                   {{.texturePaths = {{"assets/textures/block/leaves_oak.tga"}},
                     .color        = {0.2f, 0.8f, 0.3f},
                     .isOpaque     = false}});
-    RegisterBlock(Water, {{.texturePaths = {{"assets/textures/block/water_placeholder.png"}}}});
+    RegisterBlock(BlockType::Water,
+                  {{.texturePaths = {{"assets/textures/block/water_placeholder.png"}}}});
   }
-  void RegisterBlock(BlockId id, BlockDescription description) {
+  void RegisterBlock(BlockType id, BlockDescription description) {
     auto [it, inserted] = mBlockDescriptions.try_emplace(id, description);
     if (!inserted) {
       DUBU_LOG_FATAL(
           "Trying to add block with id {} but it already exists!\nExisting Textures:{}\nNew "
           "Textures:{}",
-          id,
+          (int)id,
           it->second.mCreateInfo.texturePaths,
           description.mCreateInfo.texturePaths);
     }
   }
-  const BlockDescription& GetBlockDescription(BlockId id) const {
+  const BlockDescription& GetBlockDescription(BlockType id) const {
     auto it = mBlockDescriptions.find(id);
     if (it == mBlockDescriptions.end()) {
       DUBU_LOG_ERROR("Tried to access unknown block id:{}", (int)id);
@@ -109,7 +108,7 @@ private:
       .texturePaths = {{"assets/textures/block/error.png"}},
   }};
 
-  std::unordered_map<BlockId, BlockDescription> mBlockDescriptions;
+  std::unordered_map<BlockType, BlockDescription> mBlockDescriptions;
 };
 
 }  // namespace dubu::block
