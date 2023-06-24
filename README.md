@@ -36,7 +36,7 @@ meson install
 - [ ] Build a UI system?
 - [ ] Add Biomes
 - [ ] Figure out how to generically implement liquids such as water and lava
-- [ ] Add a atmospheric scattering shader
+- [ ] Add an atmospheric scattering shader
 - [ ] Serialize chunks to disk
 - [ ] Add support for different world saves on disk
 - [ ] Store imgui.ini out of source
