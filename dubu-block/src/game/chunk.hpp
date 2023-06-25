@@ -47,14 +47,14 @@ public:
   }
   bool HasBeenOptimized() const { return mHasBeenOptimized; }
 
-  BlockId GetBlockIdAtWorldCoords(glm::ivec3 coords) const;
+  BlockType GetBlockTypeAtWorldCoords(glm::ivec3 coords) const;
 
   float GetCreationTime() const { return mCreationTime; }
 
 private:
   void GenerateMesh();
 
-  BlockId GetBlockIdAtLocalCoords(glm::ivec3 coords) const;
+  BlockType GetBlockTypeAtLocalCoords(glm::ivec3 coords) const;
 
   inline std::size_t CoordsToIndex(glm::ivec3 coords) const {
     assert(AreCoordsBounded(coords));
@@ -71,7 +71,7 @@ private:
            coords.z >= 0 && coords.z < ChunkSize.z;
   }
   inline bool IsEmpty(glm::ivec3 coords) const {
-    return GetBlockIdAtLocalCoords(coords) == BlockType::Empty;
+    return GetBlockTypeAtLocalCoords(coords) == BlockType::Empty;
   }
 
   struct FaceData {
@@ -187,7 +187,7 @@ private:
          {0, 1, 2, 0, 2, 3}},
   }};
 
-  std::array<BlockId, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
+  std::array<BlockType, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
 
   const ChunkCoords mChunkCoords;
   const ChunkCoords mChunkBlockOffset;

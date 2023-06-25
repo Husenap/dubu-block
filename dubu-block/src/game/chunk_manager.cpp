@@ -66,13 +66,13 @@ void ChunkManager::Update(const glm::vec3& cameraPosition, float time) {
   }
 }
 
-BlockId ChunkManager::GetBlockIdAt(glm::ivec3 coords) const {
+BlockType ChunkManager::GetBlockTypeAt(glm::ivec3 coords) const {
   if (auto chunk = chunks.find({coords.x < 0 ? (-1 - ((-coords.x - 1) / Chunk::ChunkSize.x))
                                              : coords.x / Chunk::ChunkSize.x,
                                 coords.z < 0 ? (-1 - ((-coords.z - 1) / Chunk::ChunkSize.z))
                                              : coords.z / Chunk::ChunkSize.z});
       chunk != chunks.end()) {
-    return chunk->second->GetBlockIdAtWorldCoords(coords);
+    return chunk->second->GetBlockTypeAtWorldCoords(coords);
   }
   return BlockType::Empty;
 }

@@ -59,9 +59,9 @@ void Chunk::GenerateMesh() {
   indices.clear();
 
   for (std::size_t index = 0; index < blocks.size(); ++index) {
-    const auto blockId = blocks[index];
+    const auto blockType = blocks[index];
 
-    if (blockId == BlockType::Empty) continue;
+    if (blockType == BlockType::Empty) continue;
 
     const auto myCoord = IndexToCoords(index);
 
@@ -69,17 +69,17 @@ void Chunk::GenerateMesh() {
       const auto& dir        = Directions[d];
       const auto  otherCoord = myCoord + dir;
 
-      const auto otherBlockId = GetBlockIdAtLocalCoords(otherCoord);
-      if (otherBlockId != BlockType::Empty) {
-        auto& otherBlockDescription = mBlockDescriptions.GetBlockDescription(otherBlockId);
+      const auto otherBlockType = GetBlockTypeAtLocalCoords(otherCoord);
+      if (otherBlockType != BlockType::Empty) {
+        auto& otherBlockDescription = mBlockDescriptions.GetBlockDescription(otherBlockType);
         if (otherBlockDescription.IsOpaque()) continue;
       }
 
       const auto& faceData = DirectionToFace[d];
 
       const glm::vec3 offsetPosition = myCoord;
-      const auto [uvPos0, uvSize0]   = mAtlas.GetUVs(blockId, dir);
-      const glm::vec3 color          = mBlockDescriptions.GetBlockDescription(blockId).GetColor();
+      const auto [uvPos0, uvSize0]   = mAtlas.GetUVs(blockType, dir);
+      const glm::vec3 color          = mBlockDescriptions.GetBlockDescription(blockType).GetColor();
 
       static constexpr float aoStrength = 0.2f;
 
@@ -88,7 +88,7 @@ void Chunk::GenerateMesh() {
       float ao2 = 1.0f;
       float ao3 = 1.0f;
 
-      if (otherBlockId != BlockType::Empty) {
+      if (otherBlockType != BlockType::Empty) {
         ao0 = ao1 = ao2 = ao3 = 1.0f - 3.0f * aoStrength;
       } else {
         const bool n0 = IsEmpty(myCoord + faceData.aoNeighbours[0]);
@@ -134,17 +134,17 @@ void Chunk::GenerateMesh() {
   mMesh.UpdateMesh(vertices, indices);
 }
 
-BlockId Chunk::GetBlockIdAtWorldCoords(glm::ivec3 coords) const {
-  return GetBlockIdAtLocalCoords(
+BlockType Chunk::GetBlockTypeAtWorldCoords(glm::ivec3 coords) const {
+  return GetBlockTypeAtLocalCoords(
       {coords.x - mChunkBlockOffset.x, coords.y, coords.z - mChunkBlockOffset.z});
 }
 
-BlockId Chunk::GetBlockIdAtLocalCoords(glm::ivec3 coords) const {
+BlockType Chunk::GetBlockTypeAtLocalCoords(glm::ivec3 coords) const {
   if (AreCoordsBounded(coords)) {
     return blocks[CoordsToIndex(coords)];
   }
   if (coords.y < 0 || coords.y > ChunkSize.y) return BlockType::Empty;
-  return mChunkManager.GetBlockIdAt(
+  return mChunkManager.GetBlockTypeAt(
       {coords.x + mChunkBlockOffset.x, coords.y, coords.z + mChunkBlockOffset.z});
 }
 
