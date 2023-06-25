@@ -27,7 +27,6 @@ meson install
 ### Todo-list
 
 #### Todo
-- [ ] See if it's a good idea to replace BlockId directly with BlockType
 - [ ] Rework the chunk generation system (parallelize, add stages, delay mesh generation, neighbour access)
 - [ ] Implement a first person avatar that can run around in the world
 - [ ] Figure out a way to color leaves and grass using mask (how to differentiate between transparency and color masking?)
@@ -44,6 +43,7 @@ meson install
 - [ ] Calculate Lighting data in chunks
 - [ ] Serialize chunk generator curves
 - [ ] Ambient Occlusion uses vertex shading which creates diagonal spikes, figure out a way to fix it
+- [ ] Implement support for entity geometry files and texturing
 
 #### Done
 - [x] Implement the possibility of querying a block on specific coordinates
@@ -53,3 +53,4 @@ meson install
 - [x] Rewrite ambient occlusion to make less queries (9 instead of 12? Perhaps only 1 if adjacent block is transparent)
 - [x] Implement a basic input system (make sure it gives ImGui precedence)
 - [x] Figure out how to add seeding
+- [x] See if it's a good idea to replace BlockId directly with BlockType
