@@ -88,7 +88,7 @@ public:
       DUBU_LOG_FATAL(
           "Trying to add block with id {} but it already exists!\nExisting Textures:{}\nNew "
           "Textures:{}",
-          (int)id,
+          static_cast<int>(id),
           it->second.mCreateInfo.texturePaths,
           description.mCreateInfo.texturePaths);
     }
