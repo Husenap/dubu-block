@@ -30,7 +30,8 @@ class ChunkManager;
 
 class Chunk {
 public:
-  static constexpr glm::ivec3 ChunkSize{16, 384, 16};
+  static constexpr glm::ivec3  ChunkSize{16, 384, 16};
+  static constexpr std::size_t BlockCount = ChunkSize.x * ChunkSize.y * ChunkSize.z;
 
   Chunk(const ChunkCoords        chunkCoords,
         const ChunkManager&      chunkManager,
@@ -51,25 +52,26 @@ public:
 
   float GetCreationTime() const { return mCreationTime; }
 
+  static inline std::size_t CoordsToIndex(glm::ivec3 coords) {
+    assert(AreCoordsBounded(coords));
+    return coords.x + coords.y * ChunkSize.x + coords.z * ChunkSize.x * ChunkSize.y;
+  }
+  static inline glm::ivec3 IndexToCoords(std::size_t index) {
+    assert(index >= 0 && index < BlockCount);
+    return {index % ChunkSize.x,
+            (index / ChunkSize.x) % ChunkSize.y,
+            (index / (ChunkSize.x * ChunkSize.y))};
+  }
+  static inline bool AreCoordsBounded(glm::ivec3 coords) {
+    return coords.x >= 0 && coords.x < ChunkSize.x && coords.y >= 0 && coords.y < ChunkSize.y &&
+           coords.z >= 0 && coords.z < ChunkSize.z;
+  }
+
 private:
   void GenerateMesh();
 
   BlockType GetBlockTypeAtLocalCoords(glm::ivec3 coords) const;
 
-  inline std::size_t CoordsToIndex(glm::ivec3 coords) const {
-    assert(AreCoordsBounded(coords));
-    return coords.x + coords.y * ChunkSize.x + coords.z * ChunkSize.x * ChunkSize.y;
-  }
-  inline glm::ivec3 IndexToCoords(std::size_t index) const {
-    assert(index >= 0 && index < blocks.size());
-    return {index % ChunkSize.x,
-            (index / ChunkSize.x) % ChunkSize.y,
-            (index / (ChunkSize.x * ChunkSize.y))};
-  }
-  inline bool AreCoordsBounded(glm::ivec3 coords) const {
-    return coords.x >= 0 && coords.x < ChunkSize.x && coords.y >= 0 && coords.y < ChunkSize.y &&
-           coords.z >= 0 && coords.z < ChunkSize.z;
-  }
   inline bool IsEmpty(glm::ivec3 coords) const {
     return GetBlockTypeAtLocalCoords(coords) == BlockType::Empty;
   }
@@ -187,7 +189,7 @@ private:
          {0, 1, 2, 0, 2, 3}},
   }};
 
-  std::array<BlockType, ChunkSize.x * ChunkSize.y * ChunkSize.z> blocks;
+  std::array<BlockType, BlockCount> blocks;
 
   const ChunkCoords mChunkCoords;
   const ChunkCoords mChunkBlockOffset;

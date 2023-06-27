@@ -29,7 +29,9 @@ public:
   }
 
   inline std::string_view GetTexturePath(uint8_t index) const {
-    DUBU_LOG_DEBUG("Finding texture index {} in texture paths {}", index, mCreateInfo.texturePaths);
+    DUBU_LOG_DEBUG("Finding texture index {} in texture paths {}",
+                   static_cast<int>(index),
+                   mCreateInfo.texturePaths);
     return mCreateInfo.texturePaths[index];
   }
 
