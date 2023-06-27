@@ -15,6 +15,7 @@ glfw_dep = dependency('glfw3')
 glm_dep = dependency('glm')
 imgui_dep = dependency('imgui_docking', default_options:['opengl=enabled', 'glfw=enabled'])
 fast_noise_lite_dep = dependency('fast_noise_lite')
+concurrentqueue_dep = dependency('concurrentqueue')
 
 subdir('lib')
 subdir('dubu-block')
