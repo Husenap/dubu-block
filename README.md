@@ -11,7 +11,7 @@ Enable `Developer Mode` on windows to be able to symlink the assets directory wi
 #### Setup and Entering devenv
 ```bash
 meson setup .build
-meson devenv -C .build/
+cd .build/
 ```
 
 #### Compile and run
