@@ -80,7 +80,6 @@ void AppBase::InitImGui() {
 
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
   ImGui_ImplGlfw_InitForOpenGL(mWindow->GetGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 130");
