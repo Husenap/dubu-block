@@ -9,7 +9,7 @@ project('dubu-block', 'c', 'cpp',
 )
 
 if meson.get_cross_property('is_macos', false)
-  add_global_arguments('-std=c++20', language : 'cpp')
+  add_global_arguments('-std=c++20', language : ['cpp','objcpp'])
 endif
 
 glad_dep = subproject('glad').get_variable('glad_dep')
