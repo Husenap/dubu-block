@@ -239,7 +239,31 @@ private:
 };
 }  // namespace dubu::block
 
+#include <iostream>
+
+#include <concurrentqueue.h>
+
+#include "generator/pipeline/features_structures.hpp"
+#include "generator/pipeline/mesh_generation.hpp"
+#include "generator/pipeline/pipeline.hpp"
+#include "generator/pipeline/surface_replacement.hpp"
+#include "generator/pipeline/terrain_shaping.hpp"
+#include "generator/pipeline/water_filling.hpp"
+
 int main() {
+  dubu::log::Register<dubu::log::ConsoleLogger>();
+
+  dubu::block::Pipeline pipeline;
+  pipeline.AddPipelineStage<dubu::block::TerrainShapingStage>();
+  pipeline.AddPipelineStage<dubu::block::WaterFillingStage>();
+  pipeline.AddPipelineStage<dubu::block::SurfaceReplacementStage>();
+  pipeline.AddPipelineStage<dubu::block::FeaturesStructuresStage>();
+  pipeline.AddPipelineStage<dubu::block::MeshGenerationStage>();
+  pipeline.LoadChunk({0, 0});
+  auto chunkData = pipeline.GetChunk({0, 0});
+  DUBU_LOG_DEBUG(
+      "num vertices: {}, num indices: {}", chunkData.vertices.size(), chunkData.indices.size());
+
   dubu::block::App app;
 
   app.Run();

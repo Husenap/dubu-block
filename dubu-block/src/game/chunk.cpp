@@ -51,14 +51,14 @@ int Chunk::Draw() const {
 }
 
 void Chunk::GenerateMesh() {
-  Timer timer("Chunk::GenerateMesh");
+  // Timer timer("Chunk::GenerateMesh");
 
   static std::vector<Mesh::Vertex> vertices;
   static std::vector<unsigned int> indices;
   vertices.clear();
   indices.clear();
 
-  for (std::size_t index = 0; index < blocks.size(); ++index) {
+  for (std::size_t index = 0; index < BlockCount; ++index) {
     const auto blockType = blocks[index];
 
     if (blockType == BlockType::Empty) continue;

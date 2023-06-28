@@ -1,87 +1,70 @@
 #pragma once
 
-#include <array>
-
-#include <glm/glm.hpp>
-
-#include "game/atlas.hpp"
-#include "game/block.hpp"
-#include "generator/seed.hpp"
-#include "gl/mesh.hpp"
-
-namespace dubu::block {
-struct ChunkCoords {
-  int            x;
-  int            z;
-  constexpr bool operator==(const ChunkCoords& rhs) const { return x == rhs.x && z == rhs.z; }
-};
-}  // namespace dubu::block
-
-template <>
-struct std::hash<dubu::block::ChunkCoords> {
-  std::size_t operator()(const dubu::block::ChunkCoords& s) const noexcept {
-    return std::hash<int64_t>{}(static_cast<int64_t>(s.x) << 32 | s.z);
-  }
-};
+#include "stage.hpp"
 
 namespace dubu::block {
 
-class ChunkManager;
-
-class Chunk {
+class MeshGenerationStage : public PipelineStage {
 public:
-  static constexpr glm::ivec3  ChunkSize{16, 384, 16};
-  static constexpr std::size_t BlockCount = ChunkSize.x * ChunkSize.y * ChunkSize.z;
+  MeshGenerationStage()
+      : PipelineStage({.needsNeighbours = true}) {}
 
-  Chunk(const ChunkCoords        chunkCoords,
-        const ChunkManager&      chunkManager,
-        Atlas&                   atlas,
-        const BlockDescriptions& blockDescriptions,
-        const Seed&              seed,
-        float                    creationTime);
+  virtual ~MeshGenerationStage() = default;
 
-  int Draw() const;
+  void Transform(ChunkData& chunkData, Context) const override {
+    DUBU_LOG_DEBUG("Mesh Generation Stage");
+    for (std::size_t index = 0; index < Chunk::BlockCount; ++index) {
+      const auto blockType = chunkData.solidBlocks[index];
 
-  void Optimize() {
-    mHasBeenOptimized = true;
-    GenerateMesh();
-  }
-  bool HasBeenOptimized() const { return mHasBeenOptimized; }
+      if (blockType == BlockType::Empty) continue;
 
-  BlockType GetBlockTypeAtWorldCoords(glm::ivec3 coords) const;
+      const auto myCoord = Chunk::IndexToCoords(index);
 
-  float GetCreationTime() const { return mCreationTime; }
+      for (std::size_t d = 0; d < Directions.size(); ++d) {
+        const auto& dir        = Directions[d];
+        const auto  otherCoord = myCoord + dir;
+        if (!Chunk::AreCoordsBounded(otherCoord) ||
+            chunkData.solidBlocks[Chunk::CoordsToIndex(otherCoord)] == BlockType::Empty)
+          continue;
 
-  static inline std::size_t CoordsToIndex(glm::ivec3 coords) {
-    assert(AreCoordsBounded(coords));
-    return coords.x + coords.y * ChunkSize.x + coords.z * ChunkSize.x * ChunkSize.y;
-  }
-  static inline glm::ivec3 IndexToCoords(std::size_t index) {
-    assert(index >= 0 && index < BlockCount);
-    return {index % ChunkSize.x,
-            (index / ChunkSize.x) % ChunkSize.y,
-            (index / (ChunkSize.x * ChunkSize.y))};
-  }
-  static inline bool AreCoordsBounded(glm::ivec3 coords) {
-    return coords.x >= 0 && coords.x < ChunkSize.x && coords.y >= 0 && coords.y < ChunkSize.y &&
-           coords.z >= 0 && coords.z < ChunkSize.z;
+        const auto& faceData = DirectionToFace[d];
+
+        const glm::vec3 offsetPosition = myCoord;
+
+        chunkData.vertices.push_back({.position = faceData.vertices[0] + offsetPosition,
+                                      .color    = {1, 1, 1},
+                                      .uv0      = {0, 0},
+                                      .ao       = 1.0f});
+        chunkData.vertices.push_back({.position = faceData.vertices[1] + offsetPosition,
+                                      .color    = {1, 1, 1},
+                                      .uv0      = {0, 0},
+                                      .ao       = 1.0f});
+        chunkData.vertices.push_back({.position = faceData.vertices[2] + offsetPosition,
+                                      .color    = {1, 1, 1},
+                                      .uv0      = {0, 0},
+                                      .ao       = 1.0f});
+        chunkData.vertices.push_back({.position = faceData.vertices[3] + offsetPosition,
+                                      .color    = {1, 1, 1},
+                                      .uv0      = {0, 0},
+                                      .ao       = 1.0f});
+
+        const unsigned int startIndex = static_cast<unsigned int>(chunkData.vertices.size()) - 4;
+        chunkData.indices.push_back(startIndex + faceData.indices[0]);
+        chunkData.indices.push_back(startIndex + faceData.indices[1]);
+        chunkData.indices.push_back(startIndex + faceData.indices[2]);
+        chunkData.indices.push_back(startIndex + faceData.indices[3]);
+        chunkData.indices.push_back(startIndex + faceData.indices[4]);
+        chunkData.indices.push_back(startIndex + faceData.indices[5]);
+      }
+    }
   }
 
 private:
-  void GenerateMesh();
-
-  BlockType GetBlockTypeAtLocalCoords(glm::ivec3 coords) const;
-
-  inline bool IsEmpty(glm::ivec3 coords) const {
-    return GetBlockTypeAtLocalCoords(coords) == BlockType::Empty;
-  }
-
   struct FaceData {
     std::array<glm::vec3, 4>    vertices;
     std::array<glm::ivec3, 8>   aoNeighbours;
     std::array<unsigned int, 6> indices;
   };
-
   static constexpr std::array<glm::ivec3, 6> Directions{{
       {-1, 0, 0},  // Left
       {1, 0, 0},   // Right
@@ -188,19 +171,6 @@ private:
            {-1, -1, 1}}},
          {0, 1, 2, 0, 2, 3}},
   }};
-
-  std::array<BlockType, BlockCount> blocks;
-
-  const ChunkCoords mChunkCoords;
-  const ChunkCoords mChunkBlockOffset;
-
-  Mesh mMesh;
-
-  const ChunkManager&      mChunkManager;
-  Atlas&                   mAtlas;
-  const BlockDescriptions& mBlockDescriptions;
-
-  float mCreationTime     = {};
-  bool  mHasBeenOptimized = false;
 };
+
 }  // namespace dubu::block
