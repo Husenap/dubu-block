@@ -15,12 +15,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Linux Setup
-      if: matrix.os == 'ubuntu-latest'
+    - name: Linux Install
+      if: startsWith(matrix.os, 'ubuntu')
       run: sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libwayland-dev libxkbcommon-dev freeglut3-dev
 
-    - name: Windows Setup
-      if: matrix.os == 'windows-latest'
+    - name: Windows Install
+      if: startsWith(matrix.os, 'windows')
       uses: bus1/cabuild/action/msdevshell@v1
       with:
         architecture: x64
@@ -33,7 +33,12 @@ jobs:
     - name: Install Python Dependencies
       run: pip install meson ninja
 
-    - name: Setup
+    - name: Setup MacOS
+      if: startsWith(matrix.os, 'macos')
+      run: meson setup .build --buildtype=${{ matrix.build_type }} --cross-file=macos.txt
+
+    - name: Setup Others
+      if: not startsWith(matrix.os, 'macos')
       run: meson setup .build --buildtype=${{ matrix.build_type }}
       
     - name: Compile
