@@ -3,12 +3,12 @@ project('dubu-block', 'c', 'cpp',
   default_options : [
     'warning_level=3',
     'default_library=static',
-    'cpp_std=c++latest',
+    meson.get_cross_property('is_macos', false) ? 'cpp_std=c++latest' : 'cpp_std=c++20',
     'buildtype=debugoptimized'
   ],
 )
 
-if host_machine.system() == 'darwin'
+if meson.get_cross_property('is_macos', false)
   add_global_arguments('-std=c++20', language : 'cpp')
 endif
 
