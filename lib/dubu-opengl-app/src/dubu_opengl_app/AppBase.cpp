@@ -82,7 +82,7 @@ void AppBase::InitImGui() {
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
   ImGui_ImplGlfw_InitForOpenGL(mWindow->GetGLFWHandle(), true);
-  ImGui_ImplOpenGL3_Init("#version 130");
+  ImGui_ImplOpenGL3_Init("#version 330");
 
   ImGuiStyle& style  = ImGui::GetStyle();
   ImVec4*     colors = style.Colors;
