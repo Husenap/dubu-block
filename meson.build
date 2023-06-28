@@ -3,7 +3,7 @@ project('dubu-block', 'c', 'cpp',
   default_options : [
     'warning_level=3',
     'default_library=static',
-    meson.get_cross_property('is_macos', false) ? 'cpp_std=c++latest' : 'cpp_std=c++20',
+    meson.get_cross_property('is_macos', false) ? 'cpp_std=none' : 'cpp_std=c++20',
     'buildtype=debugoptimized'
   ],
 )
