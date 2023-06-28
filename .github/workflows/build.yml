@@ -38,7 +38,7 @@ jobs:
       run: meson setup .build --buildtype=${{ matrix.build_type }} --cross-file=macos.txt
 
     - name: Setup Others
-      if: ! startsWith(matrix.os, 'macos')
+      if: startsWith(matrix.os, 'macos') == false
       run: meson setup .build --buildtype=${{ matrix.build_type }}
       
     - name: Compile
