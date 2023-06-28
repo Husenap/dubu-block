@@ -6,6 +6,12 @@
 
 namespace dubu::window {
 
+static void GLFWErrorCallback(int error, const char* msg) {
+  std::string s;
+  s = " [" + std::to_string(error) + "] " + msg + '\n';
+  std::cerr << s << std::endl;
+}
+
 int GLFWWindow::ConstructionCounter = 0;
 
 GLFWWindow::GLFWWindow(int width, int height, std::string_view title)
@@ -15,6 +21,7 @@ GLFWWindow::GLFWWindow(const CreateInfo& createInfo) {
   if (ConstructionCounter <= 0) {
     glfwInit();
   }
+  glfwSetErrorCallback(GLFWErrorCallback);
   ++ConstructionCounter;
 
   switch (createInfo.api) {
