@@ -3,6 +3,8 @@
 #include <glm/gtx/norm.hpp>
 #include <imgui.h>
 
+#include "game/block.hpp"
+
 namespace dubu::block {
 
 ChunkManager::ChunkManager(Atlas&                   atlas,
@@ -66,15 +68,27 @@ void ChunkManager::Update(const glm::vec3& cameraPosition, float time) {
   }
 }
 
+ChunkCoords ChunkManager::BlockCoordsToChunkCoords(glm::ivec3 coords) const {
+  return {
+      coords.x < 0 ? (-1 - ((-coords.x - 1) / Chunk::ChunkSize.x)) : coords.x / Chunk::ChunkSize.x,
+      coords.z < 0 ? (-1 - ((-coords.z - 1) / Chunk::ChunkSize.z)) : coords.z / Chunk::ChunkSize.z};
+}
+
 BlockType ChunkManager::GetBlockTypeAt(glm::ivec3 coords) const {
-  if (auto chunk = chunks.find({coords.x < 0 ? (-1 - ((-coords.x - 1) / Chunk::ChunkSize.x))
-                                             : coords.x / Chunk::ChunkSize.x,
-                                coords.z < 0 ? (-1 - ((-coords.z - 1) / Chunk::ChunkSize.z))
-                                             : coords.z / Chunk::ChunkSize.z});
-      chunk != chunks.end()) {
+  if (coords.y < 0 || coords.y > Chunk::ChunkSize.y) return BlockType::Empty;
+
+  if (auto chunk = chunks.find(BlockCoordsToChunkCoords(coords)); chunk != chunks.end()) {
     return chunk->second->GetBlockTypeAtWorldCoords(coords);
   }
   return BlockType::Empty;
+}
+
+void ChunkManager::SetBlockTypeAt(glm::ivec3 coords, BlockType type) {
+  if (coords.y < 0 || coords.y > Chunk::ChunkSize.y) return;
+
+  if (auto chunk = chunks.find(BlockCoordsToChunkCoords(coords)); chunk != chunks.end()) {
+    chunk->second->SetBlockTypeAtWorldCoords(coords, type);
+  }
 }
 
 void ChunkManager::Debug() {

@@ -10,16 +10,20 @@
 #include <stb/stb_image.h>
 
 #include "camera/freefly_camera.hpp"
+#include "dubu_log/logger/Logger.h"
 #include "game/atlas.hpp"
+#include "game/block.hpp"
 #include "game/chunk_manager.hpp"
 #include "generator/seed.hpp"
 #include "gl/debug_drawer.hpp"
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
+#include "glm/fwd.hpp"
 #include "imgui/dock_space.hpp"
 #include "input/input.hpp"
 #include "io/io.hpp"
 #include "linalg/frustum.hpp"
+#include "linalg/ray.hpp"
 
 namespace dubu::block {
 
@@ -173,7 +177,49 @@ protected:
       }
     }
 
+    // Raycast from camera and check if we hit anything
+    RaycastHit raycastHit;
+    auto       hitBlockType = BlockType::Empty;
+    bool       didHit       = false;
+
+    Raycast({.start = camera.GetPosition(), .direction = -camera.GetForward(), .length = 10.0f},
+            [&](RaycastHit hit) {
+              hitBlockType = mChunkManager->GetBlockTypeAt(hit.coords);
+              if (hitBlockType != BlockType::Empty) {
+                raycastHit = hit;
+                didHit     = true;
+              }
+              return didHit;
+            });
+
     mDebugDrawer->Draw(viewProjection);
+
+    static bool placedOrRemovedBlock = false;
+    if (didHit) {
+      if (!placedOrRemovedBlock && Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonA)) {
+        mChunkManager->SetBlockTypeAt(raycastHit.coords + raycastHit.face, BlockType::Dirt);
+
+        mChunkManager->LoadChunk(mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords),
+                                 ChunkManager::ChunkLoadingPriority::Update);
+      } else if (!placedOrRemovedBlock &&
+                 Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonB)) {
+        mChunkManager->SetBlockTypeAt(raycastHit.coords, BlockType::Empty);
+
+        mChunkManager->LoadChunk(mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords),
+                                 ChunkManager::ChunkLoadingPriority::Update);
+      }
+      placedOrRemovedBlock = Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonA) ||
+                             Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonB);
+
+      mDebugDrawer->DrawAABB(
+          {.min = raycastHit.coords, .max = raycastHit.coords + glm::ivec3(1, 1, 1)},
+          {1.0f, 0.0f, 0.0f});
+
+      mDebugDrawer->DrawLine(
+          glm::vec3(raycastHit.coords) + glm::vec3(0.5f),
+          glm::vec3(raycastHit.coords) + glm::vec3(0.5f) + glm::vec3(raycastHit.face),
+          {0.0f, 1.0f, 0.0f});
+    }
 
     if (ImGui::Begin("Debug")) {
       if (ImGui::CollapsingHeader("Render Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -206,6 +252,14 @@ protected:
 
       if (ImGui::CollapsingHeader("Generator", ImGuiTreeNodeFlags_DefaultOpen)) {
         mSeed.Debug();
+      }
+
+      if (ImGui::CollapsingHeader("Raycasting")) {
+        ImGui::LabelText("Hit block type", "%hhu", hitBlockType);
+        ImGui::LabelText("Hit distance", "%f", raycastHit.distance);
+        ImGui::LabelText("Hit face X", "%d", raycastHit.face.x);
+        ImGui::LabelText("Hit face Y", "%d", raycastHit.face.y);
+        ImGui::LabelText("Hit face Z", "%d", raycastHit.face.z);
       }
     }
     ImGui::End();

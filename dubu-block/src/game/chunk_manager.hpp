@@ -6,7 +6,9 @@
 #include <unordered_set>
 
 #include "chunk.hpp"
+#include "game/block.hpp"
 #include "generator/seed.hpp"
+#include "glm/fwd.hpp"
 
 namespace dubu::block {
 
@@ -25,7 +27,10 @@ public:
     return nullptr;
   }
 
+  ChunkCoords BlockCoordsToChunkCoords(glm::ivec3 coords) const;
+
   BlockType GetBlockTypeAt(glm::ivec3 coords) const;
+  void      SetBlockTypeAt(glm::ivec3 coords, BlockType type);
 
   void Debug();
 

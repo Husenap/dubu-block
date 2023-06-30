@@ -5,13 +5,14 @@
 #include <dubu_log/dubu_log.h>
 
 #include "chunk_manager.hpp"
+#include "game/block.hpp"
 #include "io/io.hpp"
 #include "util/timer.hpp"
 
 namespace dubu::block {
 
 Chunk::Chunk(const ChunkCoords        chunkCoords,
-             const ChunkManager&      chunkManager,
+             ChunkManager&            chunkManager,
              Atlas&                   atlas,
              const BlockDescriptions& blockDescriptions,
              const Seed&              seed,
@@ -146,6 +147,17 @@ BlockType Chunk::GetBlockTypeAtLocalCoords(glm::ivec3 coords) const {
   if (coords.y < 0 || coords.y > ChunkSize.y) return BlockType::Empty;
   return mChunkManager.GetBlockTypeAt(
       {coords.x + mChunkBlockOffset.x, coords.y, coords.z + mChunkBlockOffset.z});
+}
+
+void Chunk::SetBlockTypeAtWorldCoords(glm::ivec3 coords, BlockType type) {
+  SetBlockTypeAtLocalCoords(
+      {coords.x - mChunkBlockOffset.x, coords.y, coords.z - mChunkBlockOffset.z}, type);
+}
+
+void Chunk::SetBlockTypeAtLocalCoords(glm::ivec3 coords, BlockType type) {
+  if (AreCoordsBounded(coords)) {
+    blocks[CoordsToIndex(coords)] = type;
+  }
 }
 
 }  // namespace dubu::block

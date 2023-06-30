@@ -9,6 +9,7 @@
 
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
+#include "glm/fwd.hpp"
 #include "io/io.hpp"
 #include "linalg/aabb.hpp"
 
@@ -72,6 +73,11 @@ public:
     DrawLine({aabb.max.x, aabb.min.y, aabb.min.z}, {aabb.max.x, aabb.max.y, aabb.min.z}, color);
     DrawLine({aabb.max.x, aabb.min.y, aabb.max.z}, {aabb.max.x, aabb.max.y, aabb.max.z}, color);
     DrawLine({aabb.min.x, aabb.min.y, aabb.max.z}, {aabb.min.x, aabb.max.y, aabb.max.z}, color);
+
+    DrawLine({aabb.min.x, aabb.max.y, aabb.min.z}, {aabb.max.x, aabb.max.y, aabb.min.z}, color);
+    DrawLine({aabb.max.x, aabb.max.y, aabb.min.z}, {aabb.max.x, aabb.max.y, aabb.max.z}, color);
+    DrawLine({aabb.max.x, aabb.max.y, aabb.max.z}, {aabb.min.x, aabb.max.y, aabb.max.z}, color);
+    DrawLine({aabb.min.x, aabb.max.y, aabb.max.z}, {aabb.min.x, aabb.max.y, aabb.min.z}, color);
   }
 
 private:
