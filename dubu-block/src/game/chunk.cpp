@@ -144,7 +144,7 @@ BlockType Chunk::GetBlockTypeAtLocalCoords(glm::ivec3 coords) const {
   if (AreCoordsBounded(coords)) {
     return blocks[CoordsToIndex(coords)];
   }
-  if (coords.y < 0 || coords.y > ChunkSize.y) return BlockType::Empty;
+  if (coords.y < 0 || coords.y >= ChunkSize.y) return BlockType::Empty;
   return mChunkManager.GetBlockTypeAt(
       {coords.x + mChunkBlockOffset.x, coords.y, coords.z + mChunkBlockOffset.z});
 }

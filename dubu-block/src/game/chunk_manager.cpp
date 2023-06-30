@@ -75,7 +75,7 @@ ChunkCoords ChunkManager::BlockCoordsToChunkCoords(glm::ivec3 coords) const {
 }
 
 BlockType ChunkManager::GetBlockTypeAt(glm::ivec3 coords) const {
-  if (coords.y < 0 || coords.y > Chunk::ChunkSize.y) return BlockType::Empty;
+  if (coords.y < 0 || coords.y >= Chunk::ChunkSize.y) return BlockType::Empty;
 
   if (auto chunk = chunks.find(BlockCoordsToChunkCoords(coords)); chunk != chunks.end()) {
     return chunk->second->GetBlockTypeAtWorldCoords(coords);
@@ -84,7 +84,7 @@ BlockType ChunkManager::GetBlockTypeAt(glm::ivec3 coords) const {
 }
 
 void ChunkManager::SetBlockTypeAt(glm::ivec3 coords, BlockType type) {
-  if (coords.y < 0 || coords.y > Chunk::ChunkSize.y) return;
+  if (coords.y < 0 || coords.y >= Chunk::ChunkSize.y) return;
 
   if (auto chunk = chunks.find(BlockCoordsToChunkCoords(coords)); chunk != chunks.end()) {
     chunk->second->SetBlockTypeAtWorldCoords(coords, type);

@@ -199,8 +199,9 @@ protected:
       if (!placedOrRemovedBlock && Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonA)) {
         mChunkManager->SetBlockTypeAt(raycastHit.coords + raycastHit.face, BlockType::Dirt);
 
-        mChunkManager->LoadChunk(mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords),
-                                 ChunkManager::ChunkLoadingPriority::Update);
+        mChunkManager->LoadChunk(
+            mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords + raycastHit.face),
+            ChunkManager::ChunkLoadingPriority::Update);
       } else if (!placedOrRemovedBlock &&
                  Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonB)) {
         mChunkManager->SetBlockTypeAt(raycastHit.coords, BlockType::Empty);
