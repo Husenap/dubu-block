@@ -21,6 +21,21 @@ void ChunkManager::LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriorit
   }
 }
 
+void ChunkManager::UpdateSurroundingChunks(const ChunkCoords& chunkCoords) {
+  // self
+  LoadChunk(chunkCoords, ChunkLoadingPriority::Update);
+  // direct neighbours
+  LoadChunk({chunkCoords.x + 1, chunkCoords.z}, ChunkLoadingPriority::Update);
+  LoadChunk({chunkCoords.x - 1, chunkCoords.z}, ChunkLoadingPriority::Update);
+  LoadChunk({chunkCoords.x, chunkCoords.z + 1}, ChunkLoadingPriority::Update);
+  LoadChunk({chunkCoords.x, chunkCoords.z - 1}, ChunkLoadingPriority::Update);
+  // diagonals
+  LoadChunk({chunkCoords.x + 1, chunkCoords.z + 1}, ChunkLoadingPriority::Update);
+  LoadChunk({chunkCoords.x + 1, chunkCoords.z - 1}, ChunkLoadingPriority::Update);
+  LoadChunk({chunkCoords.x - 1, chunkCoords.z - 1}, ChunkLoadingPriority::Update);
+  LoadChunk({chunkCoords.x - 1, chunkCoords.z + 1}, ChunkLoadingPriority::Update);
+}
+
 void ChunkManager::Update(const glm::vec3& cameraPosition, float time) {
   if (glm::distance2(mPreviousCameraPosition, cameraPosition) > 20 * 20) {
     DUBU_LOG_DEBUG("Cleaning up chunks");
@@ -72,6 +87,10 @@ ChunkCoords ChunkManager::BlockCoordsToChunkCoords(glm::ivec3 coords) const {
   return {
       coords.x < 0 ? (-1 - ((-coords.x - 1) / Chunk::ChunkSize.x)) : coords.x / Chunk::ChunkSize.x,
       coords.z < 0 ? (-1 - ((-coords.z - 1) / Chunk::ChunkSize.z)) : coords.z / Chunk::ChunkSize.z};
+}
+
+glm::ivec3 ChunkManager::ChunkCoordsToBlockCoords(ChunkCoords coords) const {
+  return {coords.x * Chunk::ChunkSize.x, 0, coords.z * Chunk::ChunkSize.z};
 }
 
 BlockType ChunkManager::GetBlockTypeAt(glm::ivec3 coords) const {

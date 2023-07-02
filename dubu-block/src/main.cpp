@@ -19,6 +19,7 @@
 #include "gl/shader.hpp"
 #include "gl/shader_program.hpp"
 #include "glm/fwd.hpp"
+#include "imgui.h"
 #include "imgui/dock_space.hpp"
 #include "input/input.hpp"
 #include "io/io.hpp"
@@ -175,6 +176,13 @@ protected:
       } else {
         mChunkManager->LoadChunk(chunkCoords, ChunkManager::ChunkLoadingPriority::Generate);
       }
+
+      if (mDebugDrawChunkBorders) {
+        mDebugDrawer->DrawAABB(
+            {mChunkManager->ChunkCoordsToBlockCoords(chunkCoords),
+             mChunkManager->ChunkCoordsToBlockCoords(chunkCoords) + glm::ivec3(Chunk::ChunkSize)},
+            {1, 1, 0});
+      }
     }
 
     // Raycast from camera and check if we hit anything
@@ -198,16 +206,13 @@ protected:
     if (didHit) {
       if (!placedOrRemovedBlock && Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonA)) {
         mChunkManager->SetBlockTypeAt(raycastHit.coords + raycastHit.face, BlockType::Dirt);
-
-        mChunkManager->LoadChunk(
-            mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords + raycastHit.face),
-            ChunkManager::ChunkLoadingPriority::Update);
+        mChunkManager->UpdateSurroundingChunks(
+            mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords));
       } else if (!placedOrRemovedBlock &&
                  Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonB)) {
         mChunkManager->SetBlockTypeAt(raycastHit.coords, BlockType::Empty);
-
-        mChunkManager->LoadChunk(mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords),
-                                 ChunkManager::ChunkLoadingPriority::Update);
+        mChunkManager->UpdateSurroundingChunks(
+            mChunkManager->BlockCoordsToChunkCoords(raycastHit.coords));
       }
       placedOrRemovedBlock = Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonA) ||
                              Input::IsGamepadButtonDown(0, dubu::window::GamepadButtonB);
@@ -241,6 +246,7 @@ protected:
         ImGui::LabelText("Chunks Drawn", "%d", chunksDrawn);
         ImGui::LabelText("Chunks Culled", "%d", chunksCulled);
         ImGui::LabelText("Triangles Drawn", "%d", triangles);
+        ImGui::Checkbox("Draw chunk borders", &mDebugDrawChunkBorders);
       }
 
       if (ImGui::CollapsingHeader("Textures")) {
@@ -291,6 +297,8 @@ private:
   Seed mSeed{1337};
 
   FreeflyCamera camera;
+
+  bool mDebugDrawChunkBorders = false;
 };
 }  // namespace dubu::block
 
