@@ -33,7 +33,7 @@ public:
   static constexpr glm::ivec3 ChunkSize{16, 384, 16};
 
   Chunk(const ChunkCoords        chunkCoords,
-        const ChunkManager&      chunkManager,
+        ChunkManager&            chunkManager,
         Atlas&                   atlas,
         const BlockDescriptions& blockDescriptions,
         const Seed&              seed,
@@ -48,6 +48,7 @@ public:
   bool HasBeenOptimized() const { return mHasBeenOptimized; }
 
   BlockType GetBlockTypeAtWorldCoords(glm::ivec3 coords) const;
+  void      SetBlockTypeAtWorldCoords(glm::ivec3 coords, BlockType type);
 
   float GetCreationTime() const { return mCreationTime; }
 
@@ -55,6 +56,7 @@ private:
   void GenerateMesh();
 
   BlockType GetBlockTypeAtLocalCoords(glm::ivec3 coords) const;
+  void      SetBlockTypeAtLocalCoords(glm::ivec3 coords, BlockType type);
 
   inline std::size_t CoordsToIndex(glm::ivec3 coords) const {
     assert(AreCoordsBounded(coords));
@@ -194,7 +196,7 @@ private:
 
   Mesh mMesh;
 
-  const ChunkManager&      mChunkManager;
+  ChunkManager&            mChunkManager;
   Atlas&                   mAtlas;
   const BlockDescriptions& mBlockDescriptions;
 

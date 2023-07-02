@@ -6,7 +6,9 @@
 #include <unordered_set>
 
 #include "chunk.hpp"
+#include "game/block.hpp"
 #include "generator/seed.hpp"
+#include "glm/fwd.hpp"
 
 namespace dubu::block {
 
@@ -17,6 +19,7 @@ public:
   ChunkManager(Atlas& atlas, const BlockDescriptions& blockDescriptions, const Seed& seed);
 
   void LoadChunk(const ChunkCoords& chunkCoords, ChunkLoadingPriority priority);
+  void UpdateSurroundingChunks(const ChunkCoords& chunkCoords);
 
   void Update(const glm::vec3& cameraPosition, float time);
 
@@ -25,7 +28,11 @@ public:
     return nullptr;
   }
 
+  ChunkCoords BlockCoordsToChunkCoords(glm::ivec3 coords) const;
+  glm::ivec3  ChunkCoordsToBlockCoords(ChunkCoords coords) const;
+
   BlockType GetBlockTypeAt(glm::ivec3 coords) const;
+  void      SetBlockTypeAt(glm::ivec3 coords, BlockType type);
 
   void Debug();
 
